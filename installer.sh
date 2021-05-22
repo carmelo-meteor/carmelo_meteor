@@ -13,7 +13,7 @@ echo
 echo
 echo "  ################################################################################"
 echo
-echo "    Questo script aggiorna il sistema."
+echo "    Lo script aggiornera' il sistema."
 echo "    Se necessario accettare premendo INVIO"
 echo
 echo "  ################################################################################"
