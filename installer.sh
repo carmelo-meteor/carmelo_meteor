@@ -2,7 +2,7 @@
 
 
 echo
-echo "                       CARMELO installer versione 0.2.1.1                            "
+echo "                       CARMELO installer versione 0.3                                "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
@@ -13,7 +13,8 @@ echo
 echo
 echo "  ################################################################################"
 echo
-echo "    Lo script aggiornerà il sistema."
+echo "    Questo script aggiorna il sistema."
+echo "    Se necessario accettare premendo INVIO"
 echo
 echo "  ################################################################################"
 echo
@@ -35,7 +36,7 @@ echo
 sleep 10s
 sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gpiozero
 echo
-python3 -m pip install pyrtlsdr scipy
+python3 -m pip install pyrtlsdr scipy paho-mqtt
 echo
 sudo apt-get install libusb-1.0-0.dev git cmake build-essential
 echo
@@ -71,7 +72,7 @@ echo
 echo
 echo "  ################################################################################"
 echo 
-echo "    Lo script creerà i file per rendere automatico il programma CARMELO "
+echo "    Lo script carica i file per rendere automatico il programma CARMELO "
 echo "    e l'invio dei dati. "
 echo
 echo "  ################################################################################"
@@ -123,21 +124,24 @@ echo
 ### 4. receiving_station_data.txt
 
 echo
-echo -n "Inserisci il nome che vuoi dare al tuo carmelo: "
+echo -n "Inserisci la tua localizzazione (potresti scrivere Comune e Provincia, ad es Budrio (BO)): "
 read NAME
-echo -n "Inserisci la latitudine:  "
+echo -n "Inserisci la latitudine espressa in decimali (es 44.4567):  "
 read LAT
-echo -n "Inserisci la longitudine:  "
+echo -n "Inserisci la longitudine espressa in decimali (es 12.4567)  "
 read LNG
-echo -n "Inserisci il tipo di antenna usata: "
+echo -n "Inserisci il tipo di antenna usata (Yagi, Ground Plane, Discone ecc….): "
 read ANTENNA
-echo -n "Inserisci la visuale della stessa: "
+echo -n "Inserisci l’angolo di vista della antenna in gradi (es. 360 oppure meno se ci sono ostacoli): "
 read VIEW
-echo -n "Inserisci la frequenza a cui lavori: "
+echo -n "Inserisci la frequenza in herz della portante del trasmettitore sulla quale ci si vuole sintonizzare (es. 143.05e6) : "
 read FREQ
-echo -n "Inserisci il simbolo: "
+echo -n "Scegli il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: 
+echo -n "Asterisk, Circle, CircleCross, CircleDot, CircleY, CircleX, Cross, Dash, Diamond"
+echo -n "DiamondCross, DiamondDot, Hex, InvertedTriangle, Plus, Square, SquareCross, SquarePin"
+echo -n "SquareX, Triangle, TriangleDot, TrianglePin, X, Y: "
 read SIMBOLO
-echo -n "Inserisci il colore: "
+echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo (green, red, salmon, gold, orange ecc…. in minuscolo) : "
 read COLOR
 
 echo "$NAME" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
@@ -162,8 +166,8 @@ sudo systemctl start spedisci.timer
 echo
 echo "  ################################################################################"
 echo 
-echo "    Raspberry sta per essere arrestato. CARMELO è pronto per funzionare. "
-echo "    Prima di riavviarlo ricordati di collegare alla prese USB l'SDR."
+echo "    Raspberry verrà ora arrestato. CARMELO è pronto per funzionare. "
+echo "    Prima di riaccenderlo ricordati di collegare alla presa USB il dongle SDR ed il cavo di antenna."
 echo
 echo "  ################################################################################"
 echo

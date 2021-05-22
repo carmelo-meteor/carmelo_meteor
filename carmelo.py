@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_1 con modifica algoritmo 10*nplog10
+# versione 2_2 con innalzamento soglia
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -35,7 +35,7 @@ Tx = float(stazione[4])
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
-soglia = 0.1  #0.12  ----------------------------soglia per il trigger "meteora"
+soglia = 0.13  #0.1  ----------------------------soglia per il trigger "meteora"
 ###-----------------------------------------------------------------------------
 sleep (1)
 ledverde.off()
