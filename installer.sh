@@ -2,7 +2,7 @@
 
 
 echo
-echo "                       CARMELO installer versione 0.3                                "
+echo "                       CARMELO installer versione 0.3.1                              "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
@@ -120,39 +120,6 @@ echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo
 
-
-### 4. receiving_station_data.txt
-
-echo
-echo -n "Inserisci la tua localizzazione (potresti scrivere Comune e Provincia, ad es Budrio (BO)): "
-read NAME
-echo -n "Inserisci la latitudine espressa in decimali (es 44.4567):  "
-read LAT
-echo -n "Inserisci la longitudine espressa in decimali (es 12.4567)  "
-read LNG
-echo -n "Inserisci il tipo di antenna usata (Yagi, Ground Plane, Discone ecc….): "
-read ANTENNA
-echo -n "Inserisci l’angolo di vista della antenna in gradi (es. 360 oppure meno se ci sono ostacoli): "
-read VIEW
-echo -n "Inserisci la frequenza in herz della portante del trasmettitore sulla quale ci si vuole sintonizzare (es. 143.05e6) : "
-read FREQ
-echo -n "Scegli il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: 
-echo -n "Asterisk, Circle, CircleCross, CircleDot, CircleY, CircleX, Cross, Dash, Diamond"
-echo -n "DiamondCross, DiamondDot, Hex, InvertedTriangle, Plus, Square, SquareCross, SquarePin"
-echo -n "SquareX, Triangle, TriangleDot, TrianglePin, X, Y: "
-read SIMBOLO
-echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo (green, red, salmon, gold, orange ecc…. in minuscolo) : "
-read COLOR
-
-echo "$NAME" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$LAT" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$LNG" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$ANTENNA" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$FREQ" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$SIMBOLO" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo
 
 sudo systemctl daemon-reload
 sudo systemctl enable carmelo.service
