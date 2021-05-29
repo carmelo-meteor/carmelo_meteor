@@ -127,28 +127,28 @@ cd /home/pi/carmelo_meteor/
 chmod +x update.sh
 
 
-echo "[Unit]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "Description= update git" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "[Service]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "Type=simple" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "User=pi" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "ExecStart= /home/pi/carmelo_meteor/update.sh" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
+echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "ExecStart= /home/pi/carmelo_meteor/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo
 
 ### 5. update.timer
 
-echo "[Unit]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo "Description= update git" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo "[Timer]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo "OnCalendar=daily" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
+echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "[Timer]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "OnCalendar=daily" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo
 
 
