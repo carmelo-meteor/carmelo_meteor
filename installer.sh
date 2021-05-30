@@ -121,12 +121,19 @@ echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer 
 echo
 
 
-### 4. update.service
+### 4a. update.sh
 
-cd /home/pi/carmelo_meteor/
-chmod +x update.sh
+echo "#!/bin/bash" | sudo tee -a  /home/py/update.sh > /dev/null
+echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/py/update.sh > /dev/null
+echo "git fetch " | sudo tee -a  /home/py/update.sh > /dev/null
+echo "git pull origin master" | sudo tee -a  /home/py/update.sh > /dev/null
+echo "cp * ../" | sudo tee -a  /home/py/update.sh > /dev/null
+echo "sudo reboot" | sudo tee -a  /home/py/update.sh > /dev/null
+echo
 
+sudo chmod +x update.sh
 
+### 4b. update.service
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
