@@ -4,7 +4,7 @@ from paho.mqtt.client import Client
 import time
 
 keyword = "ID"
-path = os.chdir("tmp")#.dirname(os.path.realpath(__file__)) #imposta la directory in cui lavora
+path = os.chdir("/tmp")#.dirname(os.path.realpath(__file__)) #imposta la directory in cui lavora
 
 elenco = [f for f in os.listdir(path) if f.endswith('.log')]
 
