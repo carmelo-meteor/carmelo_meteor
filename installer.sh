@@ -8,7 +8,7 @@ echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
 echo 
 
-## AGGIORNAMENTO DEL SISTEMA 4-6-21
+## AGGIORNAMENTO DEL SISTEMA
 
 echo
 echo "  ################################################################################"
@@ -121,11 +121,10 @@ echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer 
 echo
 
 
-### 4a. update.sh
+### 4. update.sh
 
 echo "#!/bin/bash" | sudo tee -a  /home/py/update.sh > /dev/null
 echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/py/update.sh > /dev/null
-echo "git fetch " | sudo tee -a  /home/py/update.sh > /dev/null
 echo "git pull origin master" | sudo tee -a  /home/py/update.sh > /dev/null
 echo "cp * ../" | sudo tee -a  /home/py/update.sh > /dev/null
 echo "sudo reboot" | sudo tee -a  /home/py/update.sh > /dev/null
@@ -133,29 +132,61 @@ echo
 
 sudo chmod +x update.sh
 
-### 4b. update.service
+### 5. update.service
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "ExecStart= /home/pi/carmelo_meteor/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "ExecStart= /home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo
 
-### 5. update.timer
+### 6. update.timer
 
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "[Timer]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "OnCalendar=daily" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "OnCalendar=*-*-* 18:01:30" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo
+
+### 7. receiving_station_data.txt
+
+echo
+echo -n "Inserisci la tua localizzazione e qui potresti scrivere Comune e Provincia (es.: Budrio (BO)): "
+read NAME
+echo -n "Inserisci la latitudine espressa in decimali es.: 44.4567:  "
+read LAT
+echo -n "Inserisci la longitudine espressa in decimali es.: 12.4567:  "
+read LNG
+echo -n "Inserisci il tipo di antenna usata es.: Yagi, Ground Plane, Discone ecc….: "
+read ANTENNA
+echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
+read VIEW
+echo -n "Inserisci la frequenza della portante del trasmettitore sulla quale ci si vuole sintonizzare (in herz) es.: 143.05e6 : "
+read FREQ
+echo -n "Inserisci il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: asterisk,"
+echo -n "circle,circleCross,circleDot,circleY,circleX,cross,dash,Diamond,DiamondCross,DiamondDot,Hex,InvertedTriangle,Plus,Square,"
+echo -n "SquareCross,SquarePin,SquareX,Triangle,TriangleDot,TrianglePin,X,Y: "
+read SIMBOLO
+echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo es.: green, red, salmon, gold, orange ecc….(sempre in minuscolo) : "
+read COLOR
+
+echo "$NAME" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$LAT" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$LNG" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$ANTENNA" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$FREQ" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$SIMBOLO" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
 echo
 
 
