@@ -124,7 +124,7 @@ echo
 ### 4. update.sh
 
 echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cd /home/pi/carmelo_meteor/" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "git pull origin master" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
