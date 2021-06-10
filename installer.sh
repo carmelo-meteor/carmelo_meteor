@@ -66,7 +66,7 @@ echo "blacklist rtl2832" | sudo tee -a /etc/modprobe.d/blacklist-rtl.conf > /dev
 echo "blacklist rtl2830" | sudo tee -a /etc/modprobe.d/blacklist-rtl.conf > /dev/null
 echo
 
-
+cd /home/pi/
 
 ## SCRITTURA FILE SERVICE E TIMER
 echo
@@ -129,6 +129,7 @@ echo "git pull origin master" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo
+
 
 sudo chmod +x update.sh
 
@@ -205,7 +206,7 @@ while :; do
     echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
     read VIEW
     [[ $VIEW =~ ^[+-]?[0-9]*$ ]] || { echo "Use integer"; continue; } 
-    [[ $(bc <<< "$VIEW > 0 && $VIEW < 360") == 1 ]] || { echo "error: value out of range"; continue; } 
+    [[ $(bc <<< "$VIEW > 0 && $VIEW < 361") == 1 ]] || { echo "error: value out of range"; continue; } 
     echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
     break  
 done
