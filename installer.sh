@@ -2,7 +2,7 @@
 
 
 echo
-echo "                       CARMELO installer versione 0.6  10-06-21                     "
+echo "                       CARMELO installer versione 0.5  10-06-21                     "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
@@ -123,15 +123,15 @@ echo
 
 ### 4. update.sh
 
-echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "cd /home/pi/carmelo_meteor/" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "git pull origin master" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo
+#echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
+#echo "cd /home/pi/carmelo_meteor/" | sudo tee -a  /home/pi/update.sh > /dev/null
+#echo "git pull origin master" | sudo tee -a  /home/pi/update.sh > /dev/null
+#echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
+#echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
+#echo
 
-cd /home/pi/
-sudo chmod +x update.sh
+#cd /home/pi/
+#sudo chmod +x update.sh
 
 ### 5. update.service
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
