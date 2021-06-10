@@ -38,7 +38,7 @@ sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gp
 echo
 python3 -m pip install pyrtlsdr scipy paho-mqtt
 echo
-sudo apt-get install libusb-1.0-0.dev git cmake build-essential
+sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc
 echo
 
 
