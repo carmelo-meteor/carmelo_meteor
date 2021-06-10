@@ -123,11 +123,11 @@ echo
 
 ### 4. update.sh
 
-echo "#!/bin/bash" | sudo tee -a  /home/py/update.sh > /dev/null
-echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/py/update.sh > /dev/null
-echo "git pull origin master" | sudo tee -a  /home/py/update.sh > /dev/null
-echo "cp * ../" | sudo tee -a  /home/py/update.sh > /dev/null
-echo "sudo reboot" | sudo tee -a  /home/py/update.sh > /dev/null
+echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "git pull origin master" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo
 
 sudo chmod +x update.sh
@@ -235,6 +235,7 @@ sudo systemctl enable carmelo.service
 sudo systemctl enable spedisci.timer
 sudo systemctl enable spedisci.service
 sudo systemctl enable update.service
+sudo systemctl enable update.timer
 sudo systemctl start carmelo.service
 sudo systemctl start spedisci.timer
 sudo systemctl start update.timer
