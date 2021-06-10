@@ -195,6 +195,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable carmelo.service
 sudo systemctl enable spedisci.timer
 sudo systemctl enable spedisci.service
+sudo systemctl enable update.timer
 sudo systemctl enable update.service
 sudo systemctl start carmelo.service
 sudo systemctl start spedisci.timer
