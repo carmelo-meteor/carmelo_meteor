@@ -22,7 +22,7 @@ sleep 10s
 echo
 sudo apt-get update
 echo
-sudo apt-get upgrade
+sudo apt-get full-upgrade
 
 ## INSTALLAZIONE LIBRERIE DI PYTHON
 echo
@@ -123,15 +123,13 @@ echo
 
 ### 4. update.sh
 
-#echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
-#echo "cd /home/pi/carmelo_meteor/" | sudo tee -a  /home/pi/update.sh > /dev/null
-#echo "git pull origin master" | sudo tee -a  /home/pi/update.sh > /dev/null
-#echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
-#echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
-#echo
+echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "git pull origin main" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo
 
-#cd /home/pi/
-#sudo chmod +x update.sh
 
 ### 5. update.service
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
@@ -140,10 +138,10 @@ echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "ExecStart= /home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "ExecStart=/usr/bin/bash /home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "WantedBy=default.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo
 
 ### 6. update.timer
@@ -159,36 +157,78 @@ echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > 
 echo
 
 ### 7. receiving_station_data.txt
+#!/bin/bash
+
+
+segno=("asterisk" "circle" "circle_cross" "circle_dot" "circle_x" "circle_y" "cross" "dash" "diamond" "diamond_cross" "diamond_dot" "dot" "hex" "hex_dot" "inverted_triangle" "plus" "square" "square_cross" "square_dot" "square_pin" "square_x" "star" "star_dot" "triangle" "triangle_dot" "triangle_pin" "x" "y")
+colori=("green" "red" "salmon" "gold" "orange" "black" "brown" "purple")
 
 echo
 echo -n "Inserisci la tua localizzazione e qui potresti scrivere Comune e Provincia (es.: Budrio (BO)): "
 read NAME
-echo -n "Inserisci la latitudine espressa in decimali es.: 44.4567:  "
-read LAT
-echo -n "Inserisci la longitudine espressa in decimali es.: 12.4567:  "
-read LNG
-echo -n "Inserisci il tipo di antenna usata es.: Yagi, Ground Plane, Discone ecc….: "
-read ANTENNA
-echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
-read VIEW
-echo -n "Inserisci la frequenza della portante del trasmettitore sulla quale ci si vuole sintonizzare (in herz) es.: 143.05e6 : "
-read FREQ
-echo -n "Inserisci il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: asterisk,"
-echo -n "circle,circleCross,circleDot,circleY,circleX,cross,dash,Diamond,DiamondCross,DiamondDot,Hex,InvertedTriangle,Plus,Square,"
-echo -n "SquareCross,SquarePin,SquareX,Triangle,TriangleDot,TrianglePin,X,Y: "
-read SIMBOLO
-echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo es.: green, red, salmon, gold, orange ecc….(sempre in minuscolo) : "
-read COLOR
 
 echo "$NAME" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$LAT" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$LNG" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$ANTENNA" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$FREQ" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$SIMBOLO" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
-echo
+
+while :; do
+    echo -n "Inserisci la latitudine espressa in decimali (es. 44.4567):  "
+    read LAT
+    [[ $LAT =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] || { echo "Use point instead of common"; continue; } 
+    [[ $(bc <<< "$LAT > -90 && $LAT <= 90") == 1 ]] || { echo "error: value out of range"; continue; } 
+    echo "$LAT" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break  
+done
+
+while :; do
+    echo -n "Inserisci la longitudine espressa in decimali (es. 11.0909):  "
+    read LNG
+    [[ $LNG =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] || { echo "Use point instead of common"; continue; } 
+    [[ $(bc <<< "$LNG > 0 && $LNG < 360") == 1 ]] || { echo "error: value out of range"; continue; } 
+    echo "$LNG" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break  
+done
+
+echo -n "Inserisci il tipo di antenna usata es.: Yagi, Ground Plane, Discone ecc….: "
+read ANTENNA
+
+
+while :; do
+    echo -n "Inserisci la frequenza della portante del trasmettitore sulla quale ci si vuole sintonizzare (in herz) es.: 143.05e6 : "
+    read FREQ
+    [[ $FREQ =~ ^[+-]?[0-9]+\.?[0-9]+\e?[0-9]*$ ]] || { echo "Use point instead of common"; continue; } 
+    echo "$FREQ" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break
+done
+
+
+
+
+while :; do
+    echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
+    read VIEW
+    [[ $VIEW =~ ^[+-]?[0-9]*$ ]] || { echo "Use integer"; continue; } 
+    [[ $(bc <<< "$VIEW > 0 && $VIEW < 360") == 1 ]] || { echo "error: value out of range"; continue; } 
+    echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break  
+done
+
+
+while :; do
+    echo -n "Inserisci il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: asterisk circle circle_cross circle_dot circle_x circle_y cross dash    diamond diamond_cross diamond_dot dot hex hex_dot inverted_triangle plus square square_cross square_dot square_pin square_x star star_dot triangle triangle_dot triangle_pin x y : "
+    read SIMBOLO
+    [[ " ${segno[*]} " == *" $SIMBOLO "* ]] || { echo "Error: enter a correct simbol"; continue; } 
+    echo "$SIMBOLO" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break  	
+done
+
+while :; do
+    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo es.: green, red, salmon, gold, orange ecc….(sempre in minuscolo) : "
+    read COLOR
+    [[ " ${colori[*]} " == *" $COLOR "* ]] || { echo "Error: enter a correct color name"; continue; } 
+    echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break  	
+done
+
+
 
 
 sudo systemctl daemon-reload
@@ -212,5 +252,6 @@ echo
 echo "  ################################################################################"
 echo
 sleep 20s
+
 
 sudo /sbin/shutdown -h now
