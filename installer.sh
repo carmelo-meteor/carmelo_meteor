@@ -92,7 +92,6 @@ echo "Restart=always" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/
 echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
-echo
 
 ### 2. spedisci.service
 
@@ -106,7 +105,6 @@ echo "ExecStart=/usr/bin/python3 /home/pi/spedisci.py" | sudo tee -a  /etc/syste
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo
 
 ### 3. spedisci.timer
 
@@ -118,8 +116,6 @@ echo "OnCalendar=*:0/5" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo
-
 
 ### 4. update.sh
 
@@ -128,8 +124,6 @@ echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "git pull origin main" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
 echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo
-
 
 ### 5. update.service
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
@@ -142,7 +136,6 @@ echo "ExecStart=/usr/bin/bash /home/pi/update.sh" | sudo tee -a  /etc/systemd/sy
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "WantedBy=default.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo
 
 ### 6. update.timer
 
@@ -154,14 +147,12 @@ echo "OnCalendar=*-*-* 18:01:30" | sudo tee -a  /etc/systemd/system/update.timer
 echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo
+
 
 ### 7. receiving_station_data.txt
-#!/bin/bash
-
 
 segno=("asterisk" "circle" "circle_cross" "circle_dot" "circle_x" "circle_y" "cross" "dash" "diamond" "diamond_cross" "diamond_dot" "dot" "hex" "hex_dot" "inverted_triangle" "plus" "square" "square_cross" "square_dot" "square_pin" "square_x" "star" "star_dot" "triangle" "triangle_dot" "triangle_pin" "x" "y")
-colori=("green" "red" "salmon" "gold" "orange" "black" "brown" "purple")
+colori=("green" "red" "salmon" "gold" "orange" "black" "brown" "purple" "blue")
 
 echo
 echo -n "Inserisci la tua localizzazione e qui potresti scrivere Comune e Provincia (es.: Budrio (BO)): "
@@ -190,7 +181,6 @@ done
 echo -n "Inserisci il tipo di antenna usata es.: Yagi, Ground Plane, Discone ecc….: "
 read ANTENNA
 
-
 while :; do
     echo -n "Inserisci la frequenza della portante del trasmettitore sulla quale ci si vuole sintonizzare (in herz) es.: 143.05e6 : "
     read FREQ
@@ -206,7 +196,7 @@ while :; do
     echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
     read VIEW
     [[ $VIEW =~ ^[+-]?[0-9]*$ ]] || { echo "Use integer"; continue; } 
-    [[ $(bc <<< "$VIEW > 0 && $VIEW < 360") == 1 ]] || { echo "error: value out of range"; continue; } 
+    [[ $(bc <<< "$VIEW > 0 && $VIEW < 361") == 1 ]] || { echo "error: value out of range"; continue; } 
     echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
     break  
 done
@@ -221,7 +211,7 @@ while :; do
 done
 
 while :; do
-    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo es.: green, red, salmon, gold, orange ecc….(sempre in minuscolo) : "
+    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo tra green, red, salmon, gold, orange, black,brown,purple, blue : "
     read COLOR
     [[ " ${colori[*]} " == *" $COLOR "* ]] || { echo "Error: enter a correct color name"; continue; } 
     echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
