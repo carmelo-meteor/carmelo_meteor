@@ -204,7 +204,7 @@ while :; do
     echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
     read VIEW
     [[ $VIEW =~ ^[+-]?[0-9]*$ ]] || { echo "Use integer"; continue; } 
-    [[ $(bc <<< "$VIEW > 0 && $VIEW < 360") == 1 ]] || { echo "error: value out of range"; continue; } 
+    [[ $(bc <<< "$VIEW > 0 && $VIEW < 361") == 1 ]] || { echo "error: value out of range"; continue; } 
     echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
     break  
 done
