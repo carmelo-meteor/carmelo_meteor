@@ -22,7 +22,7 @@ sleep 10s
 echo
 sudo apt-get update
 echo
-sudo apt-get full-upgrade
+sudo apt-get dist-upgrade
 
 ## INSTALLAZIONE LIBRERIE DI PYTHON
 echo
@@ -117,37 +117,6 @@ echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 
-### 4. update.sh
-
-echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "git pull origin main" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
-echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
-
-### 5. update.service
-echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "ExecStart=/usr/bin/bash /home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "WantedBy=default.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-
-### 6. update.timer
-
-echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "[Timer]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "OnCalendar=*-*-* 18:01:30" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-
 
 ### 7. receiving_station_data.txt
 
@@ -224,10 +193,8 @@ sudo systemctl enable carmelo.service
 sudo systemctl enable spedisci.timer
 sudo systemctl enable spedisci.service
 sudo systemctl enable update.timer
-sudo systemctl enable update.service
 sudo systemctl start carmelo.service
 sudo systemctl start spedisci.timer
-sudo systemctl start update.timer
 
 
 ## RIAVVIO E PASSI SUCCESSIVI
