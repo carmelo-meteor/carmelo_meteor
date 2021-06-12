@@ -196,16 +196,3 @@ sudo systemctl enable update.timer
 sudo systemctl start carmelo.service
 sudo systemctl start spedisci.timer
 
-
-## RIAVVIO E PASSI SUCCESSIVI
-echo
-echo "  ################################################################################"
-echo 
-echo "    Raspberry verrà ora arrestato. CARMELO è pronto per funzionare. "
-echo "    Prima di riaccenderlo ricordati di collegare alla presa USB il dongle SDR ed il cavo di antenna."
-echo
-echo "  ################################################################################"
-echo
-sleep 20s
-
-sudo /sbin/shutdown -h now
