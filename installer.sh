@@ -38,7 +38,7 @@ sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gp
 echo
 python3 -m pip install pyrtlsdr scipy paho-mqtt
 echo
-sudo apt-get install libusb-1.0-0.dev git cmake build-essential
+sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc
 echo
 
 
@@ -227,8 +227,6 @@ while :; do
     echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
     break  	
 done
-
-
 
 
 sudo systemctl daemon-reload
