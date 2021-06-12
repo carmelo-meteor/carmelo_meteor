@@ -36,7 +36,7 @@ echo
 sleep 10s
 sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gpiozero
 echo
-python3 -m pip install pyrtlsdr==0.2.91 scipy paho-mqtt
+python3 -m pip install pyrtlsdr scipy paho-mqtt
 echo
 sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc
 echo
@@ -92,6 +92,7 @@ echo "Restart=always" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/
 echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
+echo
 
 ### 2. spedisci.service
 
@@ -105,6 +106,7 @@ echo "ExecStart=/usr/bin/python3 /home/pi/spedisci.py" | sudo tee -a  /etc/syste
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
+echo
 
 ### 3. spedisci.timer
 
@@ -116,7 +118,43 @@ echo "OnCalendar=*:0/5" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
+echo
 
+
+### 4. update.sh
+
+echo "#!/bin/bash" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cd /home/pi/carmelo_meteor" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "git pull origin main" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "cp * ../" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo "sudo reboot" | sudo tee -a  /home/pi/update.sh > /dev/null
+echo
+
+
+### 5. update.service
+echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "ExecStart=/usr/bin/bash /home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "WantedBy=default.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo
+
+### 6. update.timer
+
+echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "[Timer]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "OnCalendar=*-*-* 18:01:30" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo
 
 ### 7. receiving_station_data.txt
 
@@ -149,6 +187,7 @@ done
 
 echo -n "Inserisci il tipo di antenna usata es.: Yagi, Ground Plane, Discone ecc….: "
 read ANTENNA
+echo "$ANTENNA" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
 
 while :; do
     echo -n "Inserisci la frequenza della portante del trasmettitore sulla quale ci si vuole sintonizzare (in herz) es.: 143.05e6 : "
@@ -165,7 +204,7 @@ while :; do
     echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
     read VIEW
     [[ $VIEW =~ ^[+-]?[0-9]*$ ]] || { echo "Use integer"; continue; } 
-    [[ $(bc <<< "$VIEW > 0 && $VIEW < 361") == 1 ]] || { echo "error: value out of range"; continue; } 
+    [[ $(bc <<< "$VIEW > 0 && $VIEW < 360") == 1 ]] || { echo "error: value out of range"; continue; } 
     echo "$VIEW" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
     break  
 done
@@ -180,7 +219,7 @@ while :; do
 done
 
 while :; do
-    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo tra green, red, salmon, gold, orange, black,brown,purple, blue : "
+    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo es.: green, red, salmon, gold, orange ecc….(sempre in minuscolo) : "
     read COLOR
     [[ " ${colori[*]} " == *" $COLOR "* ]] || { echo "Error: enter a correct color name"; continue; } 
     echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
@@ -188,10 +227,28 @@ while :; do
 done
 
 
+
+
 sudo systemctl daemon-reload
 sudo systemctl enable carmelo.service
 sudo systemctl enable spedisci.timer
 sudo systemctl enable spedisci.service
+sudo systemctl enable update.timer
+sudo systemctl enable update.service
 sudo systemctl start carmelo.service
 sudo systemctl start spedisci.timer
+sudo systemctl start update.timer
 
+
+## RIAVVIO E PASSI SUCCESSIVI
+echo
+echo "  ################################################################################"
+echo 
+echo "    Raspberry verrà ora arrestato. CARMELO è pronto per funzionare. "
+echo "    Prima di riaccenderlo ricordati di collegare alla presa USB il dongle SDR ed il cavo di antenna."
+echo
+echo "  ################################################################################"
+echo
+sleep 20s
+
+sudo /sbin/shutdown -h now
