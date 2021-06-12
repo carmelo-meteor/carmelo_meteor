@@ -2,7 +2,7 @@
 
 
 echo
-echo "                       CARMELO installer versione 0.5  10-06-21                     "
+echo "                    CARMELO installer versione 0.5  del 12-06-21                     "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
@@ -22,7 +22,7 @@ sleep 10s
 echo
 sudo apt-get update
 echo
-sudo apt-get full-upgrade
+sudo apt-get upgrade
 
 ## INSTALLAZIONE LIBRERIE DI PYTHON
 echo
@@ -252,6 +252,5 @@ echo
 echo "  ################################################################################"
 echo
 sleep 20s
-
 
 sudo /sbin/shutdown -h now
