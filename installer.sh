@@ -22,7 +22,7 @@ sleep 10s
 echo
 sudo apt-get update
 echo
-sudo apt-get dist-upgrade
+sudo apt-get dist-upgrade -y
 
 ## INSTALLAZIONE LIBRERIE DI PYTHON
 echo
@@ -34,11 +34,11 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gpiozero
+sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gpiozero -y
 echo
 python3 -m pip install pyrtlsdr==0.2.91 scipy paho-mqtt
 echo
-sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc
+sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc -y
 echo
 
 
