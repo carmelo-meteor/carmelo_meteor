@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer versione 0.5  del 13-06-21                     "
+echo "                    CARMELO installer versione 0.6  del 13-06-21                     "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
@@ -92,7 +92,7 @@ echo "Restart=always" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/
 echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
-echo
+
 
 ### 2. spedisci.service
 
@@ -106,7 +106,7 @@ echo "ExecStart=/usr/bin/python3 /home/pi/spedisci.py" | sudo tee -a  /etc/syste
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo
+
 
 ### 3. spedisci.timer
 
@@ -118,7 +118,7 @@ echo "OnCalendar=*:0/5" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo
+
 
 
 ### 4. update.service
@@ -132,7 +132,7 @@ echo "ExecStart=/home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.se
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo
+
 
 ### 5. update.timer
 
@@ -144,7 +144,7 @@ echo "OnCalendar=*-*-* 19:02:30" | sudo tee -a  /etc/systemd/system/update.timer
 echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo
+
 
 ### 6. receiving_station_data.txt
 
@@ -201,7 +201,7 @@ done
 
 
 while :; do
-    echo -n "Inserisci il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: asterisk circle circle_cross circle_dot circle_x circle_y cross dash    diamond diamond_cross diamond_dot dot hex hex_dot inverted_triangle plus square square_cross square_dot square_pin square_x star star_dot triangle triangle_dot triangle_pin x y : "
+    echo -n "Inserisci il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: asterisk circle circle_cross circle_dot circle_x circle_y cross dash diamond diamond_cross diamond_dot dot hex hex_dot inverted_triangle plus square square_cross square_dot square_pin square_x star star_dot triangle triangle_dot triangle_pin x y : "
     read SIMBOLO
     [[ " ${segno[*]} " == *" $SIMBOLO "* ]] || { echo "Error: enter a correct simbol"; continue; } 
     echo "$SIMBOLO" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
@@ -209,7 +209,7 @@ while :; do
 done
 
 while :; do
-    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo es.: green, red, salmon, gold, orange ecc….(sempre in minuscolo) : "
+    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo tra green red salmon gold orange black brown purple blue : "
     read COLOR
     [[ " ${colori[*]} " == *" $COLOR "* ]] || { echo "Error: enter a correct color name"; continue; } 
     echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
