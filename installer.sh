@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer versione 0.5  del 12-06-21                     "
+echo "                    CARMELO installer versione 0.6  del 13-06-21                     "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
@@ -36,7 +36,7 @@ echo
 sleep 10s
 sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gpiozero
 echo
-python3 -m pip install pyrtlsdr scipy paho-mqtt
+python3 -m pip install pyrtlsdr==0.2.91 scipy paho-mqtt
 echo
 sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc
 echo
@@ -92,7 +92,7 @@ echo "Restart=always" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/
 echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
-
+echo
 
 ### 2. spedisci.service
 
@@ -106,7 +106,7 @@ echo "ExecStart=/usr/bin/python3 /home/pi/spedisci.py" | sudo tee -a  /etc/syste
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-
+echo
 
 ### 3. spedisci.timer
 
@@ -118,9 +118,35 @@ echo "OnCalendar=*:0/5" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
+echo
 
 
-### 7. receiving_station_data.txt
+### 4. update.service
+echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "ExecStart=/home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "WantedBy=default.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo
+
+### 5. update.timer
+
+echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "[Timer]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "OnCalendar=*-*-* 18:01:30" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo
+
+### 6. receiving_station_data.txt
 
 segno=("asterisk" "circle" "circle_cross" "circle_dot" "circle_x" "circle_y" "cross" "dash" "diamond" "diamond_cross" "diamond_dot" "dot" "hex" "hex_dot" "inverted_triangle" "plus" "square" "square_cross" "square_dot" "square_pin" "square_x" "star" "star_dot" "triangle" "triangle_dot" "triangle_pin" "x" "y")
 colori=("green" "red" "salmon" "gold" "orange" "black" "brown" "purple" "blue")
@@ -161,6 +187,9 @@ while :; do
     break
 done
 
+
+
+
 while :; do
     echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
     read VIEW
@@ -187,14 +216,15 @@ while :; do
     break  	
 done
 
-
 sudo systemctl daemon-reload
 sudo systemctl enable carmelo.service
 sudo systemctl enable spedisci.timer
 sudo systemctl enable spedisci.service
+sudo systemctl enable update.timer
+sudo systemctl enable update.service
 sudo systemctl start carmelo.service
 sudo systemctl start spedisci.timer
-
+sudo systemctl start update.timer
 
 
 ## RIAVVIO E PASSI SUCCESSIVI
@@ -208,4 +238,4 @@ echo "  ########################################################################
 echo
 sleep 20s
 
-
+sudo /sbin/shutdown -h now
