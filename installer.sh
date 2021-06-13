@@ -82,7 +82,7 @@ sleep 10s
 ### 1. carmelo.service
 
 echo "[Unit] " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
-echo "Description= Carmelo " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
+echo "Description= Carmelo program " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Service]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "Type=simple" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
@@ -97,7 +97,7 @@ echo
 ### 2. spedisci.service
 
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
-echo "Description= spedisci file" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
+echo "Description= Spedisci file python script" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "[Service]" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
 echo "Type=simple" | sudo tee -a  /etc/systemd/system/spedisci.service > /dev/null
@@ -111,7 +111,7 @@ echo
 ### 3. spedisci.timer
 
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
-echo "Description= spedisci file" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
+echo "Description= Spedisci file python script" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Timer]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "OnCalendar=*:0/5" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
@@ -123,7 +123,7 @@ echo
 
 ### 4. update.service
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "Description= Update local git repository" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Service]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "Type=simple" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
@@ -131,16 +131,16 @@ echo "User=pi" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "ExecStart=/home/pi/update.sh" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
-echo "WantedBy=default.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
+echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/update.service > /dev/null
 echo
 
 ### 5. update.timer
 
 echo "[Unit]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "Description= update git" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "Description=  Update local git repository" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "[Timer]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
-echo "OnCalendar=*-*-* 18:01:30" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
+echo "OnCalendar=*-*-* 19:02:30" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/update.timer > /dev/null
