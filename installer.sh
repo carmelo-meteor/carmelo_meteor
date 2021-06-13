@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer versione 0.6  del 13-06-21                     "
+echo "                    CARMELO installer versione 0.5  del 13-06-21                     "
 echo
 echo
 echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
