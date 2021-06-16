@@ -1,3 +1,5 @@
+#versione del 16-06-2021
+
 from pathlib import Path
 import os
 from paho.mqtt.client import Client
