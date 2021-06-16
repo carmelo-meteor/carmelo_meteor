@@ -1,4 +1,4 @@
-#versione del 16-06-2021
+#versione del 16-06-2021 ore 19.39
 
 from pathlib import Path
 import os
