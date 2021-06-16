@@ -16,7 +16,7 @@ fi
 
 if git merge-base --is-ancestor HEAD $remote_branch; then
     echo 'Fast-forward possible. Merging...'
-    git merge --ff-only --stat $remote_branch
-    cp *.pi ./
+    git pull
+    cp *.pi /home/pi
     sudo reboot
 fi
