@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_3 con innalzamento soglia
+# versione 2_3 con innalzamento soglia 27-06-2021
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
