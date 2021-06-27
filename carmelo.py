@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_2 con innalzamento soglia 16-06-2021
+# versione 2_3 con innalzamento soglia
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,6 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
+vers="2_3"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -35,7 +36,7 @@ Tx = float(stazione[4])
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
-soglia = 0.13  #0.1  ----------------------------soglia per il trigger "meteora"
+soglia = 0.15  #0.1  ----------------------------soglia per il trigger "meteora"
 ###-----------------------------------------------------------------------------
 sleep (1)
 ledverde.off()
@@ -95,9 +96,9 @@ while True:
                 messaggio = os.path.join("tmp",messaggio)
                 with open(messaggio,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore"
+                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" +"," + "version"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
-                        "," + antenna + ","+str(vista)+ "," + segno + "," + colore
+                        "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers
                     riga = riga1 +"\n" + riga2
                     f.write(riga)
             #--------------------------------------------------------
