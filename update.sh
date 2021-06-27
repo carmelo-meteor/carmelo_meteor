@@ -17,6 +17,7 @@ fi
 if git merge-base --is-ancestor HEAD $remote_branch; then
     echo 'Fast-forward possible. Merging...'
     git pull
-    cp *.pi /home/pi
+    cp carmelo.py /home/pi/
+    cp spedisci.py /home/pi/
     sudo reboot
 fi
