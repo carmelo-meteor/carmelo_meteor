@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_3
+# versione 2_4 con stampa freq e riduz tempo di "sono vivo"
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_3"
+vers="2_4"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -60,13 +60,13 @@ def get_data():
     global rx,frequenza
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
     freq,power=signal.periodogram(frame,nfft=1024)
-    freq = freq+0.016 + sdr.center_freq/1e6
+    freqmod = freq+0.016 + sdr.center_freq/1e6
     rx = frequenza=0
     for i in range(0,1024):  #---------------------------------------------------porzione di spettro
         if power[i]>rx:
             rx=power[i]
-            frequenza=freq[i]
-meteora=np.empty((0,4))
+            frequenza=freqmod[i]
+meteora=np.empty((0,5))
 sleep (2)
 ledverde.off()
 
@@ -91,7 +91,7 @@ while True:
             now = datetime.datetime.now()
             midnight = datetime.datetime.combine(now.date(), datetime.time())
             differenza =  round ((now - midnight).seconds/60,1)
-            if 0 < differenza < 0.5:
+            if 0 < differenza < 0.2:
                 messaggio="ID" + "_" + localita + str(datetime.datetime.strftime(now,'%Y%m%d_%H%M%S'))+ '.log'
                 messaggio = os.path.join("tmp",messaggio)
                 with open(messaggio,"w") as f:
@@ -109,11 +109,11 @@ while True:
             istante = datetime.datetime.utcnow()
             px= 10*np.log10(rxprec)
             snr = 10*np.log10(rxprec/rxmedio)
-            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
+            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr,freq]]),axis=0)
             contatore+=1
             px= 10*np.log10(rx)
             snr = 10*np.log10(rx/rxmedio)
-            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
+            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr,freq]]),axis=0)
             inizio=1
             ledgiallo.on()
         else:
@@ -122,7 +122,7 @@ while True:
                 secondaf=frequenza
             px= 10*np.log10(rx)
             snr = 10*np.log10(rx/rxmedio)
-            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
+            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr,freq]]),axis=0)
     else:
         if inizio==1 and trig!=0:
             contatore+=1
@@ -130,7 +130,7 @@ while True:
                 secondaf=frequenza
             px= 10*np.log10(rx)
             snr = 10*np.log10(rx/rxmedio)
-            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
+            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr,freq]]),axis=0)
     trig-=1
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
@@ -165,7 +165,7 @@ while True:
             ledrosso.off()
         trig=inizio=rxm=cont=0
         contatore=0
-        meteora=np.empty((0,4))
+        meteora=np.empty((0,5))
 
 
 
