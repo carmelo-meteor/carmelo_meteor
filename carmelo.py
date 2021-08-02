@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_3 con innalzamento soglia
+# versione 2_4 con innalzamento soglia
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_3"
+vers="2_4"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -43,6 +43,7 @@ ledverde.off()
 ###-----------------------------------------------------------caricamento finito
 shift = 0.1e6
 rxmedio = 50
+finestra = 0.003
 cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
@@ -93,7 +94,7 @@ while True:
             differenza =  round ((now - midnight).seconds/60,1)
             if 0 < differenza < 0.5:
                 messaggio="ID" + "_" + localita + str(datetime.datetime.strftime(now,'%Y%m%d_%H%M%S'))+ '.log'
-                messaggio = os.path.join("tmp",messaggio)
+                messaggio = os.path.join("/tmp",messaggio)
                 with open(messaggio,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
                         "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" +"," + "version"
@@ -103,7 +104,7 @@ while True:
                     f.write(riga)
             #--------------------------------------------------------
 
-    if rx > rxmedio + (rxmedio*soglia) and frequenzaarrot==Tx/1e6: #-------------inizio meteora
+    if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestra) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
         trig=trigmax
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
@@ -144,7 +145,7 @@ while True:
             nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+\
                      "_" + localita + '.log'
 
-            nomefile = os.path.join("tmp",nomefile)
+            nomefile = os.path.join("/tmp",nomefile)
 
             with open(nomefile,"w") as f:
                 riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
