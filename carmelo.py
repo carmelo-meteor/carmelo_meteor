@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_4 con innalzamento soglia
+# versione 2_5 con introduzione finestra
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_4"
+vers="2_5"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -43,7 +43,7 @@ ledverde.off()
 ###-----------------------------------------------------------caricamento finito
 shift = 0.1e6
 rxmedio = 50
-finestra = 0.003
+finestra = 0.0015
 cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
@@ -92,7 +92,7 @@ while True:
             now = datetime.datetime.now()
             midnight = datetime.datetime.combine(now.date(), datetime.time())
             differenza =  round ((now - midnight).seconds/60,1)
-            if 0 < differenza < 0.5:
+            if 0 < differenza < 0.2:
                 messaggio="ID" + "_" + localita + str(datetime.datetime.strftime(now,'%Y%m%d_%H%M%S'))+ '.log'
                 messaggio = os.path.join("/tmp",messaggio)
                 with open(messaggio,"w") as f:
