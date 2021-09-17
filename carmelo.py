@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_5 con introduzione finestra
+# versione 2_6 con modifica invio "sono vivo"
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -56,6 +56,7 @@ sdr.gain = 15  ##---5
 px=0
 rumore=0
 rx=frequenza=frequenzaarrot=0
+ggg=0
 
 def get_data():
     global rx,frequenza
@@ -87,12 +88,12 @@ while True:
             rxmedio=rxm/contmax
             rumore= 10*np.log10(rxmedio)
             cont=rxm=0
-
             #-------------------------------------------------------manda il messaggio "sono vivo"
-            now = datetime.datetime.now()
-            midnight = datetime.datetime.combine(now.date(), datetime.time())
-            differenza =  round ((now - midnight).seconds/60,1)
-            if 0 < differenza < 0.2:
+            d = datetime.date.today()
+            if ggg != d.day:
+                ledrosso.on()
+                ggg = d.day
+                now = datetime.datetime.now()
                 messaggio="ID" + "_" + localita + str(datetime.datetime.strftime(now,'%Y%m%d_%H%M%S'))+ '.log'
                 messaggio = os.path.join("/tmp",messaggio)
                 with open(messaggio,"w") as f:
@@ -102,6 +103,8 @@ while True:
                         "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers
                     riga = riga1 +"\n" + riga2
                     f.write(riga)
+                    ledrosso.off()
+                    sleep (2)
             #--------------------------------------------------------
 
     if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestra) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
