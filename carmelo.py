@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_6"
+vers="2_5"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
