@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_6 con modifica invio "sono vivo"
+# versione 2_7 con valutazione falso positivo
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_6"
+vers="2_7"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -44,10 +44,10 @@ ledverde.off()
 shift = 0.1e6
 rxmedio = 50
 finestra = 0.0015
-cont =  rxm = trig = inizio = 0
+cont =  rxm = trig = inizio = cok = 0
 contatore =0
 contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
-trigmax=50      ##---------------------------------------------------------------attesa dopo la meteora prima di chiudere
+trigmax=15      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
 camp =32768   #65536
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # ------------------------------------------------------frequenza di campionamento in Hz
@@ -98,7 +98,7 @@ while True:
                 messaggio = os.path.join("/tmp",messaggio)
                 with open(messaggio,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" +"," + "version"
+                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" + "," + "version"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                         "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers
                     riga = riga1 +"\n" + riga2
@@ -109,6 +109,7 @@ while True:
 
     if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestra) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
         trig=trigmax
+        cok+=1
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
             px= 10*np.log10(rxprec)
@@ -139,6 +140,7 @@ while True:
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
+        fp=100*cok/contatore  # valutazione perc. sul falso positivo
         if contatore>trigmax and round (secondaf,2)==Tx/1e6: #-------------------se è consistente e con due freq==tx allora stampa
             ledrosso.on()
             pippo=np.amax(meteora,axis=0)
@@ -152,11 +154,11 @@ while True:
 
             with open(nomefile,"w") as f:
                 riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore"
+                        "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "fp"
                 riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                         "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(round(durata_camp.microseconds/1000))+","+\
                         str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
-                        ","+str(vista) + "," + segno + "," + colore
+                        ","+str(vista) + "," + segno + "," + colore + "," + str(round(fp))
                 riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
                 riga = riga1 +"\n" + riga2+"\n" +riga3 +"\n"
                 f.write(riga)
@@ -167,7 +169,7 @@ while True:
 
 
             ledrosso.off()
-        trig=inizio=rxm=cont=0
+        trig=inizio=rxm=cont=cok=0
         contatore=0
         meteora=np.empty((0,4))
 
