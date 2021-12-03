@@ -47,7 +47,7 @@ finestra = 0.0015
 cont =  rxm = trig = inizio = cok = 0
 contatore =0
 contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
-trigmax=15      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
+trigmax=25      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
 camp =32768   #65536
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # ------------------------------------------------------frequenza di campionamento in Hz
