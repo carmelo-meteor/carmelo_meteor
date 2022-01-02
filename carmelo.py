@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_7"
+vers="2_8"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -47,7 +47,7 @@ finestra = 0.0015
 cont =  rxm = trig = inizio = cok = 0
 contatore =0
 contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
-trigmax=25      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
+trigmax=35      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
 camp =32768   #65536
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # ------------------------------------------------------frequenza di campionamento in Hz
@@ -103,8 +103,9 @@ while True:
                         "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers
                     riga = riga1 +"\n" + riga2
                     f.write(riga)
+                    sleep (1)
                     ledrosso.off()
-                    sleep (2)
+
             #--------------------------------------------------------
 
     if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestra) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
@@ -141,7 +142,7 @@ while True:
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
         fp=100*cok/contatore  # valutazione perc. sul falso positivo
-        if contatore>trigmax and round (secondaf,2)==Tx/1e6: #-------------------se è consistente e con due freq==tx allora stampa
+        if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>7: #-------------------se è consistente e con due freq==tx allora stampa
             ledrosso.on()
             pippo=np.amax(meteora,axis=0)
             pot_max=round(pippo[3],2)
@@ -167,7 +168,7 @@ while True:
                     f.write(str(int(meteora[i][0])) + ","+str(round(meteora[i][1],2)) + ","+\
                             str(round(meteora[i][2],6)) + "," + str(round(meteora[i][3],2))+"\n")
 
-
+            sleep (1)
             ledrosso.off()
         trig=inizio=rxm=cont=cok=0
         contatore=0
