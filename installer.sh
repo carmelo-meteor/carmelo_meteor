@@ -2,19 +2,19 @@
 
 
 echo
-echo "                    CARMELO installer versione 0.5  del 13-06-21                     "
+echo "                    CARMELO installer version 0.6 _ 27-06-21                     "
 echo
 echo
-echo "  Lo script installera' la versione più recente di Carmelo con le relative dipendenze"
+echo "  The script will install the latest Carmelo version with its dependencies"
 echo 
 
-## AGGIORNAMENTO DEL SISTEMA
+## SYSTEM UDATE
 
 echo
 echo "  ################################################################################"
 echo
-echo "    Lo script aggiornera' il sistema."
-echo "    Se necessario accettare premendo INVIO"
+echo "    The script will update the system."
+echo "    If it is necessary accept by clic Enter"
 echo
 echo "  ################################################################################"
 echo
@@ -24,12 +24,12 @@ sudo apt-get update
 echo
 sudo apt-get dist-upgrade -y
 
-## INSTALLAZIONE LIBRERIE DI PYTHON
+## PYTHON LIBRARIES INSTALLATION
 echo
 echo "  ################################################################################"
 echo
-echo "    Lo script installera' le librerie necessarie. "
-echo "    Il processo potrebbe durare a lungo."
+echo "    The script will install the necessary libraries. "
+echo "    The process could take a long time."
 echo
 echo "  ################################################################################"
 echo
@@ -42,12 +42,12 @@ sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc -y
 echo
 
 
-## INSTALLAZIONE LIBRERIA OSMOCOM RTLSDR
+## OSMOCOM RTLSDR LIBRARY INSTALLATION
 echo
 echo "  ################################################################################"
 echo 
-echo "    Lo script installera' la libreria OSMOCOM per il device SDR. "
-echo "    Se necessario accettare premendo INVIO"
+echo "    The script will install the OSMOCOM library for the SDR device. "
+echo "    If it is necessary accept by clic Enter"
 echo
 echo "  ################################################################################"
 echo
@@ -68,12 +68,12 @@ echo
 
 
 
-## SCRITTURA FILE SERVICE E TIMER
+## WRITING FILE SERVICE AND TIMER
 echo
 echo "  ################################################################################"
 echo 
-echo "    Lo script carica i file per rendere automatico il programma CARMELO "
-echo "    e l'invio dei dati. "
+echo "    The script loads the files to make the CARMELO program automatic "
+echo "    and to send the dates. "
 echo
 echo "  ################################################################################"
 echo
@@ -146,13 +146,13 @@ segno=("asterisk" "circle" "circle_cross" "circle_dot" "circle_x" "circle_y" "cr
 colori=("green" "red" "salmon" "gold" "orange" "black" "brown" "purple" "blue")
 
 echo
-echo -n "Inserisci la tua localizzazione e qui potresti scrivere Comune e Provincia (es.: Budrio (BO)): "
+echo -n "Enter your location here. You could write Municipality - County and State in parenteses eg: Budrio - BO (ITA): "
 read NAME
 
 echo "$NAME" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
 
 while :; do
-    echo -n "Inserisci la latitudine espressa in decimali (es. 44.4567):  "
+    echo -n "Enter your latitude in degrees (eg. 44.4567):  "
     read LAT
     [[ $LAT =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] || { echo "Use point instead of common"; continue; } 
     [[ $(bc <<< "$LAT > -90 && $LAT <= 90") == 1 ]] || { echo "error: value out of range"; continue; } 
@@ -161,7 +161,7 @@ while :; do
 done
 
 while :; do
-    echo -n "Inserisci la longitudine espressa in decimali (es. 11.0909):  "
+    echo -n "Enter your longitude in degrees (eg. 11.0909):  "
     read LNG
     [[ $LNG =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] || { echo "Use point instead of common"; continue; } 
     [[ $(bc <<< "$LNG > 0 && $LNG < 361") == 1 ]] || { echo "error: value out of range"; continue; } 
@@ -169,12 +169,12 @@ while :; do
     break  
 done
 
-echo -n "Inserisci il tipo di antenna usata es.: Yagi, Ground Plane, Discone ecc….: "
+echo -n "Enter your antenna type eg.: Yagi, Ground Plane, Discone ecc….: "
 read ANTENNA
 echo "$ANTENNA" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
 
 while :; do
-    echo -n "Inserisci la frequenza della portante del trasmettitore sulla quale ci si vuole sintonizzare (in herz) es.: 143.05e6 : "
+    echo -n "Enter the carrier frequency of the transmitter you want to tune to (in herz) eg.: 143.05e6 : "
     read FREQ
     [[ $FREQ =~ ^[+-]?[0-9]+\.?[0-9]+\e?[0-9]*$ ]] || { echo "Use point instead of common"; continue; } 
     echo "$FREQ" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
@@ -183,7 +183,7 @@ done
 
 
 while :; do
-    echo -n "Inserisci l’angolo di vista della antenna in gradi es.: 360 oppure meno se ci sono ostacoli: "
+    echo -n "Enter the angle of view of the antenna in degrees eg.: 360 or less if there are obstacles: "
     read VIEW
     [[ $VIEW =~ ^[+-]?[0-9]*$ ]] || { echo "Use integer"; continue; } 
     [[ $(bc <<< "$VIEW > 0 && $VIEW < 361") == 1 ]] || { echo "error: value out of range"; continue; } 
@@ -192,7 +192,7 @@ while :; do
 done
 
 while :; do
-    echo -n "Inserisci il simbolo con il quale si vuole comparire nella rappresentazione complessiva di Carmelo scegliendo tra: asterisk circle circle_cross circle_dot circle_x circle_y cross dash diamond diamond_cross diamond_dot dot hex hex_dot inverted_triangle plus square square_cross square_dot square_pin square_x star star_dot triangle triangle_dot triangle_pin x y : "
+    echo -n "Enter the symbol with which you want to appear in the overall representation of Carmelo choosing between: asterisk circle circle_cross circle_dot circle_x circle_y cross dash diamond diamond_cross diamond_dot dot hex hex_dot inverted_triangle plus square square_cross square_dot square_pin square_x star star_dot triangle triangle_dot triangle_pin x y : "
     read SIMBOLO
     [[ " ${segno[*]} " == *" $SIMBOLO "* ]] || { echo "Error: enter a correct simbol"; continue; } 
     echo "$SIMBOLO" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
@@ -200,7 +200,7 @@ while :; do
 done
 
 while :; do
-    echo -n "Inserisci il colore con il quale si vuole comparire nella rappresentazione complessiva di Carmelo tra green red salmon gold orange black brown purple blue : "
+    echo -n "Enter the symbol with which you want to appear in the overall representation of Carmelo choosing between: green red salmon gold orange black brown purple blue : "
     read COLOR
     [[ " ${colori[*]} " == *" $COLOR "* ]] || { echo "Error: enter a correct color name"; continue; } 
     echo "$COLOR" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
@@ -218,12 +218,12 @@ sudo systemctl start spedisci.timer
 sudo systemctl start update.timer
 
 
-## RIAVVIO E PASSI SUCCESSIVI
+## RESTART
 echo
 echo "  ################################################################################"
 echo 
-echo "    Raspberry verrà ora arrestato. CARMELO è pronto per funzionare. "
-echo "    Prima di riaccenderlo ricordati di collegare alla presa USB il dongle SDR ed il cavo di antenna."
+echo "    Raspberry will now be shut down. Then CARMELO will be ready to work. "
+echo "    Before turning it back on, remember to connect the SDR dongle and the antenna cable to the USB socket."
 echo
 echo "  ################################################################################"
 echo
