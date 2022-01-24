@@ -8,7 +8,7 @@ import time
 #versione 3
 
 keyword = "ID"
-path = os.chdir("tmp")#.dirname(os.path.realpath(__file__)) #imposta la directory in cui lavora
+path = os.chdir("/tmp")#.dirname(os.path.realpath(__file__)) #imposta la directory in cui lavora
 
 elenco = [f for f in os.listdir(path) if f.endswith('.log')]
 
@@ -31,4 +31,3 @@ for file in elenco:
 
         os.unlink(Path(file))
 
-        print(nome_file, " sent")
