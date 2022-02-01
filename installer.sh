@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer version 0.6 _ 27-06-21                     "
+echo "                    CARMELO installer version 0.7 _ 01-02-22                     "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
@@ -113,6 +113,7 @@ echo "Description= Spedisci file python script" | sudo tee -a  /etc/systemd/syst
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Timer]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "OnCalendar=*:0/5" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
+echo "RandomizedDelaySec=59" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
 echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/spedisci.timer > /dev/null
