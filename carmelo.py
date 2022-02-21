@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_7 con valutazione falso positivo
+# versione 2_9 con correzione sul guadagno
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_8"
+vers="2_9"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -86,7 +86,7 @@ while True:
         if cont>contmax:
             ledverde.on()
             rxmedio=rxm/contmax
-            rumore= 10*np.log10(rxmedio)
+            rumore= (10*np.log10(rxmedio))-sdr.gain
             cont=rxm=0
             #-------------------------------------------------------manda il messaggio "sono vivo"
             d = datetime.date.today()
@@ -113,12 +113,12 @@ while True:
         cok+=1
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
-            px= 10*np.log10(rxprec)
-            snr = 10*np.log10(rxprec/rxmedio)
+            px= (10*np.log10(rxprec))-sdr.gain
+            snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             contatore+=1
-            px= 10*np.log10(rx)
-            snr = 10*np.log10(rx/rxmedio)
+            px= (10*np.log10(rx))-sdr.gain
+            snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             inizio=1
             ledgiallo.on()
@@ -126,16 +126,16 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= 10*np.log10(rx)
-            snr = 10*np.log10(rx/rxmedio)
+            px= (10*np.log10(rx))-sdr.gain
+            snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     else:
         if inizio==1 and trig!=0:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= 10*np.log10(rx)
-            snr = 10*np.log10(rx/rxmedio)
+            px= (10*np.log10(rx))-sdr.gain
+            snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     trig-=1
 
