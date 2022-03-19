@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_9 con correzione sul guadagno
+# versione 2_10 con preamp
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -19,7 +19,7 @@ from pylab import *
 from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_9"
+vers="2_10"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -36,7 +36,7 @@ Tx = float(stazione[4])
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
-soglia = 0.15  #0.1  ----------------------------soglia per il trigger "meteora"
+soglia = 0.05  #0.1  ----------------------------soglia sul rumore per il trigger "meteora"
 ###-----------------------------------------------------------------------------
 sleep (1)
 ledverde.off()
@@ -53,6 +53,7 @@ sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # ------------------------------------------------------frequenza di campionamento in Hz
 sdr.freq_correction = 1   #----------------------------------------------------- PPM
 sdr.gain = 15  ##---5
+pre_gain = 18.7 ##----preampl SPF5189 LNA
 px=0
 rumore=0
 rx=frequenza=frequenzaarrot=0
@@ -86,7 +87,7 @@ while True:
         if cont>contmax:
             ledverde.on()
             rxmedio=rxm/contmax
-            rumore= (10*np.log10(rxmedio))-sdr.gain
+            rumore= (10*np.log10(rxmedio))-sdr.gain - pre_gain
             cont=rxm=0
             #-------------------------------------------------------manda il messaggio "sono vivo"
             d = datetime.date.today()
@@ -113,11 +114,11 @@ while True:
         cok+=1
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
-            px= (10*np.log10(rxprec))-sdr.gain
+            px= (10*np.log10(rxprec))-sdr.gain -pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             contatore+=1
-            px= (10*np.log10(rx))-sdr.gain
+            px= (10*np.log10(rx))-sdr.gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             inizio=1
@@ -126,7 +127,7 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= (10*np.log10(rx))-sdr.gain
+            px= (10*np.log10(rx))-sdr.gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     else:
@@ -134,20 +135,21 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= (10*np.log10(rx))-sdr.gain
+            px= (10*np.log10(rx))-sdr.gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     trig-=1
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
-        fp=100*cok/contatore  # valutazione perc. sul falso positivo
-        if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>7: #-------------------se è consistente e con due freq==tx allora stampa
+        fp=(100*cok/contatore)-20  # valutazione perc. sul falso positivo e densità
+        if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>-13: #-------------------se è consistente e con due freq==tx allora stampa
             ledrosso.on()
             pippo=np.amax(meteora,axis=0)
             pot_max=round(pippo[3],2)
             fine = datetime.datetime.utcnow()
             durata_camp= (fine-istante)/contatore
+            ms=int((istante.microsecond)/1000)
             nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+\
                      "_" + localita + '.log'
 
@@ -155,11 +157,11 @@ while True:
 
             with open(nomefile,"w") as f:
                 riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "fp"
+                        "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "fp" + "," + "ms"
                 riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                         "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(round(durata_camp.microseconds/1000))+","+\
                         str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
-                        ","+str(vista) + "," + segno + "," + colore + "," + str(round(fp))
+                        ","+str(vista) + "," + segno + "," + colore + "," + str(round(fp))+ "," + str(ms)
                 riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
                 riga = riga1 +"\n" + riga2+"\n" +riga3 +"\n"
                 f.write(riga)
