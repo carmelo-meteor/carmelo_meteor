@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_10 con preamp
+# versione 2_11
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -11,15 +11,15 @@ ledgiallo.on()
 ledverde.on()
 ledrosso.on()
 from scipy import signal
-from matplotlib import mlab as mlab
+##from matplotlib import mlab as mlab
 from rtlsdr import RtlSdr
 import numpy as np
 import datetime, sys, os
-from pylab import *
-from ftplib import FTP
+##from pylab import *
+##from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_10"
+vers="2_11"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
