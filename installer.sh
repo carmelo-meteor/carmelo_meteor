@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer version 0.8 _ 03-06-23                     "
+echo "                    CARMELO installer version 0.9 _ 09-06-23                     "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
@@ -34,9 +34,11 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-sudo apt-get install python3-pip python3-matplotlib libatlas-base-dev python3-gpiozero -y
+sudo apt-get install python3-pip libatlas-base-dev python3-gpiozero -y
 echo
 python3 -m pip install pyrtlsdr==0.2.91 scipy==1.7.3 paho-mqtt
+echo
+python3 -m pip install numpy --upgrade
 echo
 sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc -y
 echo
