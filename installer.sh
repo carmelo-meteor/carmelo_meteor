@@ -1,8 +1,8 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 
 echo
-echo "                   CARMELO installer version 0.10 _ 11-12-23                     "
+echo "                    CARMELO installer version 0.9 _ 09-06-23                     "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
@@ -54,7 +54,7 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
+git clone git://git.osmocom.org/rtl-sdr.git
 cd rtl-sdr/
 mkdir build
 cd build
