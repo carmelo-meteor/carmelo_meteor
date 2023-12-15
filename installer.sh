@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer version 0.9 _ 09-06-23                     "
+echo "                    CARMELO installer version 0.10 _ 15-12-23                     "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
@@ -36,13 +36,12 @@ echo
 sleep 10s
 sudo apt-get install python3-pip libatlas-base-dev python3-gpiozero -y
 echo
-python3 -m pip install pyrtlsdr==0.2.91 scipy==1.7.3 paho-mqtt
-echo
-python3 -m pip install numpy --upgrade
+sudo apt-get install  python3-scipy python3-paho-mqtt -y
 echo
 sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc -y
 echo
-
+pip3 install pyrtlsdr --break-system-packages
+echo
 
 ## OSMOCOM RTLSDR LIBRARY INSTALLATION
 echo
@@ -54,7 +53,7 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-git clone git://git.osmocom.org/rtl-sdr.git
+git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
 cd rtl-sdr/
 mkdir build
 cd build
