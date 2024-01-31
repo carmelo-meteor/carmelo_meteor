@@ -1,6 +1,6 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_11
+
 
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
@@ -11,15 +11,12 @@ ledgiallo.on()
 ledverde.on()
 ledrosso.on()
 from scipy import signal
-##from matplotlib import mlab as mlab
 from rtlsdr import RtlSdr
 import numpy as np
 import datetime, sys, os
-##from pylab import *
-##from ftplib import FTP
 from pathlib import Path
 from time import sleep
-vers="2_11"
+vers="2_12"
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -41,14 +38,16 @@ soglia = 0.05  #0.1  ----------------------------soglia sul rumore per il trigge
 sleep (1)
 ledverde.off()
 ###-----------------------------------------------------------caricamento finito
+camp = 2048     #2048
+frange = 1024   #2048
 shift = 0.1e6
 rxmedio = 50
 finestra = 0.0015
 cont =  rxm = trig = inizio = cok = 0
 contatore =0
-contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
+contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
-camp =32768   #65536
+
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # ------------------------------------------------------frequenza di campionamento in Hz
 sdr.freq_correction = 1   #----------------------------------------------------- PPM
@@ -62,10 +61,10 @@ ggg=0
 def get_data():
     global rx,frequenza
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
-    freq,power=signal.periodogram(frame,nfft=1024)
+    freq,power=signal.periodogram(frame,nfft=frange)#----------------------------effettua l'FFT
     freq = freq+0.016 + sdr.center_freq/1e6
     rx = frequenza=0
-    for i in range(0,1024):  #---------------------------------------------------porzione di spettro
+    for i in range(0,frange):  #---------------------------------------------------porzione di spettro
         if power[i]>rx:
             rx=power[i]
             frequenza=freq[i]
