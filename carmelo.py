@@ -1,7 +1,7 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# versione 2_12
 
+vers="2_13"
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -16,7 +16,7 @@ import numpy as np
 import datetime, sys, os
 from pathlib import Path
 from time import sleep
-vers="2_12"
+
 sleep (1)
 ledrosso.off()
 sdr = RtlSdr()
@@ -39,18 +39,18 @@ sleep (1)
 ledverde.off()
 ###-----------------------------------------------------------caricamento finito
 camp = 2048     #2048
-frange = 1024   #2048
+frange = 2048   #1024
 shift = 0.1e6
 rxmedio = 50
-finestra = 0.0015
+finestra = 0.0015  #0.0015     0.005
 cont =  rxm = trig = inizio = cok = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-------------------------------------------------attesa dopo la meteora prima di chiudere
 
 sdr.center_freq = Tx-shift
-sdr.sample_rate = 1.2e6  # ------------------------------------------------------frequenza di campionamento in Hz
-sdr.freq_correction = 1   #----------------------------------------------------- PPM
+sdr.sample_rate = 1.2e6  # 1.2e6-----------------------------------------------------frequenza di campionamento in Hz!!!!!
+sdr.freq_correction = 1   #  1 --------------------------------------------------- PPM
 sdr.gain = 15  ##---5
 pre_gain = 18.7 ##----preampl SPF5189 LNA
 px=0
@@ -61,7 +61,7 @@ ggg=0
 def get_data():
     global rx,frequenza
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
-    freq,power=signal.periodogram(frame,nfft=frange)#----------------------------effettua l'FFT
+    freq,power=signal.periodogram(frame, fs=1.0, window='boxcar')#----------------------------effettua l'FFT
     freq = freq+0.016 + sdr.center_freq/1e6
     rx = frequenza=0
     for i in range(0,frange):  #---------------------------------------------------porzione di spettro
@@ -158,7 +158,7 @@ while True:
                 riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
                         "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "fp" + "," + "ms"
                 riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
-                        "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(round(durata_camp.microseconds/1000))+","+\
+                        "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
                         str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
                         ","+str(vista) + "," + segno + "," + colore + "," + str(round(fp))+ "," + str(ms)
                 riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
