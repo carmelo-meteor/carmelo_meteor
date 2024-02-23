@@ -1,7 +1,7 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 
-vers="2_13"
+vers="2_14"
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -38,8 +38,7 @@ soglia = 0.05  #0.1  ----------------------------soglia sul rumore per il trigge
 sleep (1)
 ledverde.off()
 ###-----------------------------------------------------------caricamento finito
-camp = 2048     #2048
-frange = 2048   #1024
+camp = 8192     #2048
 shift = 0.1e6
 rxmedio = 50
 finestra = 0.0015  #0.0015     0.005
@@ -64,7 +63,7 @@ def get_data():
     freq,power=signal.periodogram(frame, fs=1.0, window='boxcar')#----------------------------effettua l'FFT
     freq = freq+0.016 + sdr.center_freq/1e6
     rx = frequenza=0
-    for i in range(0,frange):  #---------------------------------------------------porzione di spettro
+    for i in range(0,len(frame)):  #---------------------------------------------------porzione di spettro
         if power[i]>rx:
             rx=power[i]
             frequenza=freq[i]
