@@ -1,7 +1,7 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 
-vers="2_14"
+vers="2_15"
 from gpiozero import LED
 ###---------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -41,7 +41,8 @@ ledverde.off()
 camp = 8192     #2048
 shift = 0.1e6
 rxmedio = 50
-finestra = 0.0015  #0.0015     0.005
+finestra = 0.067  #0.0015     0.067
+finestrina= 0.001
 cont =  rxm = trig = inizio = cok = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
@@ -54,7 +55,7 @@ sdr.gain = 15  ##---5
 pre_gain = 18.7 ##----preampl SPF5189 LNA
 px=0
 rumore=0
-rx=frequenza=frequenzaarrot=0
+rx=frequenza=0
 ggg=0
 
 def get_data():
@@ -73,10 +74,9 @@ ledverde.off()
 
 while True:
     rxprec=rx
-    frequenzaprec=frequenza
-    frequenzaarrot=round (frequenza,2)
+    freqprec=frequenza
     get_data()
-    frequenzaarrot=round (frequenza,2)
+
     if inizio==0:   #------------------------------------------------------------calcolo del rumore
         rxm=rxm+rx
         cont+=1
@@ -107,14 +107,14 @@ while True:
 
             #--------------------------------------------------------
 
-    if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestra) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
+    if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestrina) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
         trig=trigmax
         cok+=1
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
             px= (10*np.log10(rxprec))-sdr.gain -pre_gain
             snr = px-rumore
-            meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
+            meteora = np.append(meteora,np.array([[contatore,px,freqprec,snr]]),axis=0)
             contatore+=1
             px= (10*np.log10(rx))-sdr.gain - pre_gain
             snr = px-rumore
@@ -141,7 +141,8 @@ while True:
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
         fp=(100*cok/contatore)-20  # valutazione perc. sul falso positivo e densità
-        if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>-13: #-------------------se è consistente e con due freq==tx allora stampa
+##        if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>-13: #------------------se è consistente e con due freq==tx allora stampa
+        if contatore>trigmax and (Tx/1e6 - finestrina) < secondaf < (Tx/1e6 + finestra) and fp>-13:
             ledrosso.on()
             pippo=np.amax(meteora,axis=0)
             pot_max=round(pippo[3],2)
