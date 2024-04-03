@@ -1,7 +1,7 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 
-vers="2_16"
+vers="2_17"
 from gpiozero import LED
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -43,8 +43,8 @@ shift = 0.1e6
 rxmedio = 50
 ##finestra = 0.067  #0.0015     0.067
 ##finestrina= 0.001
-finestra = Tx/(10e9)    #14  KHz (per Graves)
-finestrina= Tx/(100e9)  #1.4 KHz
+finestra = Tx/(15e9)    #14  KHz (per Graves)
+finestrina= Tx/(150e9)  #1.4 KHz
 
 cont =  rxm = trig = inizio = cok = 0
 contatore =0
