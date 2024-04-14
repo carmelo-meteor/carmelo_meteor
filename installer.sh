@@ -2,10 +2,11 @@
 
 
 echo
-echo "                    CARMELO installer version 0.10 _ 15-12-23                     "
+echo "                    CARMELO installer version 0.11 - 24/01/2024                     "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
+echo "  Works with Raspberry v. 3 and up"
 echo 
 
 ## SYSTEM UDATE
@@ -80,7 +81,7 @@ echo "  ########################################################################
 echo
 sleep 10s
 
-### 1. carmelo.service
+### 1a. carmelo.service
 
 echo "[Unit] " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "Description= Carmelo program " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
@@ -88,11 +89,24 @@ echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Service]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "Type=simple" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "User=pi" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
-echo "ExecStart=/usr/bin/python3 /home/pi/carmelo.py" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
+echo "WorkingDirectory=/home/pi" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
+echo "ExecStart=python3 carmelo.py" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "Restart=always" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo " " | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "[Install]" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
 echo "WantedBy=multi-user.target" | sudo tee -a  /etc/systemd/system/carmelo.service > /dev/null
+
+
+### 1b. carmelo.timer
+
+echo "[Unit] " | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo "Description= Carmelo program timer" | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo "[Timer]" | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo "OnBootSec=1min" | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo " " | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo "[Install]" | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
+echo "WantedBy=timers.target" | sudo tee -a  /etc/systemd/system/carmelo.timer > /dev/null
 
 ### 2. spedisci.service
 
@@ -210,12 +224,12 @@ while :; do
 done
 
 sudo systemctl daemon-reload
-sudo systemctl enable carmelo.service
+sudo systemctl enable carmelo.timer
 sudo systemctl enable spedisci.timer
 sudo systemctl enable spedisci.service
 sudo systemctl enable update.timer
 sudo systemctl enable update.service
-sudo systemctl start carmelo.service
+sudo systemctl start carmelo.timer
 sudo systemctl start spedisci.timer
 sudo systemctl start update.timer
 
