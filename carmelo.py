@@ -16,6 +16,11 @@ import numpy as np
 import datetime, sys, os
 from pathlib import Path
 from time import sleep
+import logging
+
+# Setup logging
+logging.basicConfig(filename='/var/log/carmelo.log', level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 sleep (1)
 ledrosso.off()
@@ -87,6 +92,7 @@ while True:
             ledverde.off()
         if cont>contmax:
             ledverde.on()
+            logging.info(f"LED verde acceso, segnale: {rx}")
             rxmedio=rxm/contmax
             rumore= (10*np.log10(rxmedio))-sdr.gain - pre_gain
             cont=rxm=0
@@ -94,6 +100,7 @@ while True:
             d = datetime.date.today()
             if ggg != d.day:
                 ledrosso.on()
+                logging.info(f"LED rosso acceso per il messaggio 'I'm alive', segnale: {rx}")
                 ggg = d.day
                 now = datetime.datetime.now()
                 messaggio="ID" + "_" + localita + str(datetime.datetime.strftime(now,'%Y%m%d_%H%M%S'))+ '.log'
@@ -124,6 +131,7 @@ while True:
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             inizio=1
             ledgiallo.on()
+            logging.info(f"LED giallo acceso per rilevazione meteore, segnale: {rx}")
         else:
             contatore+=1
             if contatore ==2:
@@ -147,6 +155,7 @@ while True:
         if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>-13: #--------se è consistente e con due freq==tx allora stampa
 ##        if contatore>trigmax and (Tx/1e6 - finestrina) < secondaf < (Tx/1e6 + finestra) and fp>-13:
             ledrosso.on()
+            logging.info(f"LED rosso acceso per rilevazione confermata, segnale: {rx}")
             pippo=np.amax(meteora,axis=0)
             pot_max=round(pippo[3],2)
             fine = datetime.datetime.utcnow()
