@@ -1,7 +1,7 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 
-vers="2_17"
+vers="2_19"
 from gpiozero import LED
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -33,7 +33,7 @@ Tx = float(stazione[4])
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
-soglia = 0.05  #0.1  ------------------------------------------------------------soglia sul rumore per il trigger "meteora"
+soglia = 0.1  #0.05  ------------------------------------------------------------soglia sul rumore per il trigger "meteora"
 ###-----------------------------------------------------------------------------
 sleep (1)
 ledverde.off()
@@ -46,10 +46,13 @@ rxmedio = 50
 finestra = Tx/(15e9)    #14  KHz (per Graves)
 finestrina= Tx/(150e9)  #1.4 KHz
 
-cont =  rxm = trig = inizio = cok = 0
+cont =  rxm = trig = inizio = 0
 contatore =0
-contmax = 200   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
+contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-----------------------------------------------tesa dopo la meteora prima di chiudere
+theshold=0.04   ##-----------soglia anti interferenze e falsi positivi-----------------
+
+
 
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
@@ -112,7 +115,6 @@ while True:
 
     if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestrina) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
         trig=trigmax
-        cok+=1
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
             px= (10*np.log10(rxprec))-sdr.gain -pre_gain
@@ -141,40 +143,47 @@ while True:
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     trig-=1
 
+
+    rows = meteora.shape[0]
+    scartosomm=scartomedio=scarto=0
+
+
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
-        fp=(100*cok/contatore)-20  # valutazione perc. sul falso positivo e densità
-        if contatore>trigmax and round (secondaf,2)==Tx/1e6 and fp>-13: #--------se è consistente e con due freq==tx allora stampa
-##        if contatore>trigmax and (Tx/1e6 - finestrina) < secondaf < (Tx/1e6 + finestra) and fp>-13:
-            ledrosso.on()
-            pippo=np.amax(meteora,axis=0)
-            pot_max=round(pippo[3],2)
-            fine = datetime.datetime.utcnow()
-            durata_camp= (fine-istante)/contatore
-            ms=int((istante.microsecond)/1000)
-            nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+\
-                     "_" + localita + '.log'
+        if contatore>trigmax and round (secondaf,2)==Tx/1e6: #---------------------------------------------se è consistente e con le due prime freq==tx
+            for i in range (0,(rows-33)): #----------------------------------------------------------------valuta falsi positivi
+                freqni = float(meteora[i,2])
+                scarto=abs(freqni-Tx/1e6)
+                scartosomm=scartosomm+scarto
+            scartomedio=scartosomm/i
+            if scartomedio<theshold:  #--------------------------------------------------------------------allora stampa
+                ledrosso.on()
+                pippo=np.amax(meteora,axis=0)
+                pot_max=round(pippo[3],2)
+                fine = datetime.datetime.utcnow()
+                durata_camp= (fine-istante)/contatore
+                ms=int((istante.microsecond)/1000)
+                nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+\
+                         "_" + localita + '.log'
+                nomefile = os.path.join("/tmp",nomefile)
 
-            nomefile = os.path.join("/tmp",nomefile)
-
-            with open(nomefile,"w") as f:
-                riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "fp" + "," + "ms"
-                riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
-                        "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
-                        str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
-                        ","+str(vista) + "," + segno + "," + colore + "," + str(round(fp))+ "," + str(ms)
-                riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
-                riga = riga1 +"\n" + riga2+"\n" +riga3 +"\n"
-                f.write(riga)
-
-                for i in range(len(meteora)):
-                    f.write(str(int(meteora[i][0])) + ","+str(round(meteora[i][1],2)) + ","+\
-                            str(round(meteora[i][2],6)) + "," + str(round(meteora[i][3],2))+"\n")
+                with open(nomefile,"w") as f:
+                    riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
+                            "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "," + "ms"
+                    riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
+                            "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
+                            str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
+                            ","+str(vista) + "," + segno + "," + colore + "," + "," + str(ms)
+                    riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
+                    riga = riga1 +"\n" + riga2+"\n" +riga3 +"\n"
+                    f.write(riga)
+                    for i in range(len(meteora)):
+                        f.write(str(int(meteora[i][0])) + ","+str(round(meteora[i][1],2)) + ","+\
+                                str(round(meteora[i][2],6)) + "," + str(round(meteora[i][3],2))+"\n")
 
             sleep (1)
             ledrosso.off()
-        trig=inizio=rxm=cont=cok=0
+        trig=inizio=rxm=cont=0
         contatore=0
         meteora=np.empty((0,4))
 
