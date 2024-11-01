@@ -23,7 +23,7 @@ sleep 10s
 echo
 sudo apt-get update
 echo
-sudo apt-get full-upgrade
+sudo apt-get full-upgrade -y
 
 ## PYTHON LIBRARIES INSTALLATION
 echo
