@@ -1,7 +1,7 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 
-vers="2_19"
+vers="2_20"
 from gpiozero import LED
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -33,7 +33,7 @@ Tx = float(stazione[4])
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
-soglia = 0.1  #0.05  ------------------------------------------------------------soglia sul rumore per il trigger "meteora"
+soglia = 0.1  #0.1  ------------------------------------------------------------soglia sul rumore per il trigger "meteora"
 ###-----------------------------------------------------------------------------
 sleep (1)
 ledverde.off()
@@ -49,7 +49,7 @@ finestrina= Tx/(150e9)  #1.4 KHz
 cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
-trigmax=35      ##--------------50-----------------------------------------------tesa dopo la meteora prima di chiudere
+trigmax=35      ##--------------50-----------------------------------------------attesa dopo la meteora prima di chiudere
 theshold=0.04   ##-----------soglia anti interferenze e falsi positivi-----------------
 
 
@@ -57,8 +57,8 @@ theshold=0.04   ##-----------soglia anti interferenze e falsi positivi----------
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
-sdr.gain = 15   ##---5
-pre_gain = 18.7 ##----preampl SPF5189 LNA
+
+pre_gain = 83 ##----preampl
 px=0
 rumore=0
 rx=frequenza=0
@@ -91,7 +91,7 @@ while True:
         if cont>contmax:
             ledverde.on()
             rxmedio=rxm/contmax
-            rumore= (10*np.log10(rxmedio))-sdr.gain - pre_gain
+            rumore= (10*np.log10(rxmedio)) - pre_gain
             cont=rxm=0
             #--------------------------------------------------------------------manda il messaggio "sono vivo"
             d = datetime.date.today()
@@ -117,11 +117,11 @@ while True:
         trig=trigmax
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
-            px= (10*np.log10(rxprec))-sdr.gain -pre_gain
+            px= (10*np.log10(rxprec)) -pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,freqprec,snr]]),axis=0)
             contatore+=1
-            px= (10*np.log10(rx))-sdr.gain - pre_gain
+            px= (10*np.log10(rx)) - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             inizio=1
@@ -130,7 +130,7 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= (10*np.log10(rx))-sdr.gain - pre_gain
+            px= (10*np.log10(rx)) - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     else:
@@ -138,7 +138,7 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= (10*np.log10(rx))-sdr.gain - pre_gain
+            px= (10*np.log10(rx)) - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     trig-=1
@@ -171,7 +171,7 @@ while True:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
                             "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "," + "ms"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
-                            "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
+                            "," + str(round(rumore,2))+"," +antenna + ","+str(pre_gain)+ ","+str(durata_camp.microseconds/1000)+","+\
                             str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
                             ","+str(vista) + "," + segno + "," + colore + "," + "," + str(ms)
                     riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
