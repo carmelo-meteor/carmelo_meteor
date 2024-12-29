@@ -1,7 +1,9 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
+##per LNA cinese e con valutazione sulla moda
 
-vers="Carmelo2_19"
+vers="Carmelo2_22"
+
 from gpiozero import LED
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
@@ -23,7 +25,7 @@ sdr = RtlSdr()
 sleep (1)
 ledgiallo.off()
 
-###------------------------------------------------------------------------------legge e carica iparametri di stazione
+###------------------------------------------------------------------------------legge e carica i parametri di stazione
 stazione = [line.rstrip('\n') for line in open('/home/pi/receiving_station_data.txt')]
 localita = stazione[0]
 lat = float(stazione[1])
@@ -41,8 +43,6 @@ ledverde.off()
 camp = 8192     #2048
 shift = 0.1e6
 rxmedio = 50
-##finestra = 0.067  #0.0015     0.067
-##finestrina= 0.001
 finestra = Tx/(15e9)    #14  KHz (per Graves)
 finestrina= Tx/(150e9)  #1.4 KHz
 
@@ -52,13 +52,13 @@ contmax = 500   ##--------------------------------------------------------------
 trigmax=35      ##--------------50-----------------------------------------------tesa dopo la meteora prima di chiudere
 theshold=0.04   ##-----------soglia anti interferenze e falsi positivi-----------------
 
-
-
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
-sdr.gain = 15   ##---5
-pre_gain = 18.7 ##----preampl SPF5189 LNA
+sdr.gain = 43.4
+diff_gain = 55
+pre_gain = 15 ##----preampl cinese
+
 px=0
 rumore=0
 rx=frequenza=0
@@ -91,7 +91,7 @@ while True:
         if cont>contmax:
             ledverde.on()
             rxmedio=rxm/contmax
-            rumore= (10*np.log10(rxmedio))-sdr.gain - pre_gain
+            rumore= (10*np.log10(rxmedio)) - sdr.gain - diff_gain - pre_gain
             cont=rxm=0
             #--------------------------------------------------------------------manda il messaggio "sono vivo"
             d = datetime.date.today()
@@ -117,11 +117,11 @@ while True:
         trig=trigmax
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
-            px= (10*np.log10(rxprec))-sdr.gain -pre_gain
+            px= (10*np.log10(rxprec)) - sdr.gain - diff_gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,freqprec,snr]]),axis=0)
             contatore+=1
-            px= (10*np.log10(rx))-sdr.gain - pre_gain
+            px= (10*np.log10(rx)) - sdr.gain - diff_gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
             inizio=1
@@ -130,7 +130,7 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= (10*np.log10(rx))-sdr.gain - pre_gain
+            px= (10*np.log10(rx)) - sdr.gain - diff_gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     else:
@@ -138,25 +138,24 @@ while True:
             contatore+=1
             if contatore ==2:
                 secondaf=frequenza
-            px= (10*np.log10(rx))-sdr.gain - pre_gain
+            px= (10*np.log10(rx)) - sdr.gain - diff_gain - pre_gain
             snr = px-rumore
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     trig-=1
 
-
     rows = meteora.shape[0]
     scartosomm=scartomedio=scarto=0
-
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
         if contatore>trigmax and round (secondaf,2)==Tx/1e6: #---------------------------------------------se è consistente e con le due prime freq==tx
-            for i in range (0,(rows-33)): #----------------------------------------------------------------valuta falsi positivi
-                freqni = float(meteora[i,2])
-                scarto=abs(freqni-Tx/1e6)
-                scartosomm=scartosomm+scarto
-            scartomedio=scartosomm/i
-            if scartomedio<theshold:  #--------------------------------------------------------------------allora stampa
+            listafreq = meteora[2:-33,2:3]
+            (sorted_data, idx, counts) = np.unique(listafreq, return_index=True, return_counts=True)# calcola la moda
+            index = idx[np.argmax(counts)]
+            moda=float(listafreq[index])*1e6
+            delta = Tx - (moda)
+
+            if  abs(delta)<1000:#---------------------------------------------------se la moda è a meno di 1 KHz da Tx allora stampa
                 ledrosso.on()
                 pippo=np.amax(meteora,axis=0)
                 pot_max=round(pippo[3],2)
