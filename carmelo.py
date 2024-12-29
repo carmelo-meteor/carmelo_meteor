@@ -2,7 +2,7 @@
 # di Lorenzo Barbieri e Gaetano Brando
 ##per LNA cinese e con valutazione sulla moda
 
-vers="Carmelo2_22"
+vers="2_22"
 
 from gpiozero import LED
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
