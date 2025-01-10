@@ -1,10 +1,15 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-##per LNA cinese e con valutazione sulla moda
+##con valutazione sulla moda
+##Ponticello sul GPIO 26 per commutare il pre gain
+##riconoscimento stazione senza ponticello
+##fissa la banda passante a 20 KHz
+##misura potenza massima
+##invia con conteggio minimo
 
-vers="2_22"
+vers="Carmelo2_28"
 
-from gpiozero import LED
+from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
 ledverde=LED(17)
 ledgiallo=LED(6)
@@ -18,6 +23,7 @@ import numpy as np
 import datetime, sys, os
 from pathlib import Path
 from time import sleep
+
 
 sleep (1)
 ledrosso.off()
@@ -40,6 +46,7 @@ soglia = 0.1  #0.05  -----------------------------------------------------------
 sleep (1)
 ledverde.off()
 ###------------------------------------------------------------------------------caricamento finito
+button = Button(26)
 camp = 8192     #2048
 shift = 0.1e6
 rxmedio = 50
@@ -50,14 +57,26 @@ cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-----------------------------------------------tesa dopo la meteora prima di chiudere
-theshold=0.04   ##-----------soglia anti interferenze e falsi positivi-----------------
 
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
 diff_gain = 55
-pre_gain = 15 ##----preampl cinese
+
+
+if button.is_pressed:
+    pre_gain = 41##----preampl NOOELECT
+else:
+    pre_gain = 15##----preampl cinese
+
+
+if localita in ['AAB Hayfield - Derbyshire (UK)', 'MarSEC - VI (ITA)','GAV Arcugnano - VI(ITA)']: ##da togliere
+    pre_gain = 41##----preampl NOOELECT
+
+sdr.bandwidth=200000#----Hz
+
+
 
 px=0
 rumore=0
@@ -143,8 +162,6 @@ while True:
             meteora = np.append(meteora,np.array([[contatore,px,frequenza,snr]]),axis=0)
     trig-=1
 
-    rows = meteora.shape[0]
-    scartosomm=scartomedio=scarto=0
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
@@ -155,10 +172,12 @@ while True:
             moda=float(listafreq[index])*1e6
             delta = Tx - (moda)
 
-            if  abs(delta)<1000:#---------------------------------------------------se la moda è a meno di 1 KHz da Tx allora stampa
+
+            if  abs(delta)<1000 and max(counts)>1:#---------------------------------------------------se la moda è a meno di 1 KHz da Tx allora stampa
                 ledrosso.on()
                 pippo=np.amax(meteora,axis=0)
-                pot_max=round(pippo[3],2)
+                sdr_max=round(pippo[3],2)
+                pot_max=round(pippo[1],2)##-----------------------------------------------nuovo----------------------------------------
                 fine = datetime.datetime.utcnow()
                 durata_camp= (fine-istante)/contatore
                 ms=int((istante.microsecond)/1000)
@@ -168,11 +187,12 @@ while True:
 
                 with open(nomefile,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                            "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max power(snr)"+","+"Vista(°)" + "," + "segno" + "," + "colore" + "," + "," + "ms"
+                            "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max snr"+","+"Vista(°)" +\
+                             "," + "segno" + "," + "colore" + "," + "Max power" + "," + "ms"+","+"pre-gain"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                             "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
-                            str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(pot_max)+\
-                            ","+str(vista) + "," + segno + "," + colore + "," + "," + str(ms)
+                            str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(sdr_max)+\
+                            ","+str(vista) + "," + segno + "," + colore + "," + str(pot_max) + "," + str(ms)+ "," + str(pre_gain)
                     riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
                     riga = riga1 +"\n" + riga2+"\n" +riga3 +"\n"
                     f.write(riga)
