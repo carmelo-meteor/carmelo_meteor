@@ -6,8 +6,9 @@
 ##fissa la banda passante a 20 KHz
 ##misura potenza massima
 ##invia con conteggio minimo
+##corretto il pre_gain del NOOELEC
 
-vers="Carmelo2_28"
+vers="Carmelo2_29"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -66,13 +67,13 @@ diff_gain = 55
 
 
 if button.is_pressed:
-    pre_gain = 41##----preampl NOOELECT
+    pre_gain = 20##----preampl NOOELECT
 else:
     pre_gain = 15##----preampl cinese
 
 
 if localita in ['AAB Hayfield - Derbyshire (UK)', 'MarSEC - VI (ITA)','GAV Arcugnano - VI(ITA)']: ##da togliere
-    pre_gain = 41##----preampl NOOELECT
+    pre_gain = 20##----preampl NOOELECT
 
 sdr.bandwidth=200000#----Hz
 
