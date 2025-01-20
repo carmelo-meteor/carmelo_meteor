@@ -6,9 +6,9 @@
 ##fissa la banda passante a 20 KHz
 ##misura potenza massima
 ##invia con conteggio minimo
-##corretto il pre_gain del NOOELEC
+##corretto il pre_gain del NOOELEC, tolto il Marsec
 
-vers="Carmelo2_29"
+vers="Carmelo2_30"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -72,7 +72,7 @@ else:
     pre_gain = 15##----preampl cinese
 
 
-if localita in ['AAB Hayfield - Derbyshire (UK)', 'MarSEC - VI (ITA)','GAV Arcugnano - VI(ITA)']: ##da togliere
+if localita in ['AAB Hayfield - Derbyshire (UK)','GAV Arcugnano - VI(ITA)']: ##da togliere
     pre_gain = 20##----preampl NOOELECT
 
 sdr.bandwidth=200000#----Hz
