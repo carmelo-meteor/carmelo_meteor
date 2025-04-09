@@ -1,14 +1,9 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-##con valutazione sulla moda
-##Ponticello sul GPIO 26 per commutare il pre gain
-##riconoscimento stazione senza ponticello
-##fissa la banda passante a 20 KHz
-##misura potenza massima
-##invia con conteggio minimo
-##corretto il pre_gain del NOOELEC, tolto il Marsec
+##a partire dalla versione 2_30
+##introdotto il conteggio dei falsi positivi
 
-vers="Carmelo2_30"
+vers="Carmelo2_31"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -53,6 +48,7 @@ shift = 0.1e6
 rxmedio = 50
 finestra = Tx/(15e9)    #14  KHz (per Graves)
 finestrina= Tx/(150e9)  #1.4 KHz
+falspos=3
 
 cont =  rxm = trig = inizio = 0
 contatore =0
@@ -123,11 +119,12 @@ while True:
                 messaggio = os.path.join("/tmp",messaggio)
                 with open(messaggio,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" + "," + "version"
+                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" + "," + "version"+ "," + "n° Falsi positivi"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
-                        "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers
+                        "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers+ ","  +str(falspos)
                     riga = riga1 +"\n" + riga2
                     f.write(riga)
+                    falspos=0
                     sleep (1)
                     ledrosso.off()
 
@@ -200,6 +197,8 @@ while True:
                     for i in range(len(meteora)):
                         f.write(str(int(meteora[i][0])) + ","+str(round(meteora[i][1],2)) + ","+\
                                 str(round(meteora[i][2],6)) + "," + str(round(meteora[i][3],2))+"\n")
+            else:
+                 falspos += 1
 
             sleep (1)
             ledrosso.off()
