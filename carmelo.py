@@ -2,8 +2,9 @@
 # di Lorenzo Barbieri e Gaetano Brando
 ##a partire dalla versione 2_30
 ##introdotto il conteggio dei falsi positivi
+##stretta la banda passante
 
-vers="Carmelo2_31"
+vers="Carmelo2_32"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -71,7 +72,7 @@ else:
 if localita in ['AAB Hayfield - Derbyshire (UK)','GAV Arcugnano - VI(ITA)']: ##da togliere
     pre_gain = 20##----preampl NOOELECT
 
-sdr.bandwidth=200000#----Hz
+sdr.bandwidth=6000#----Hz
 
 
 
