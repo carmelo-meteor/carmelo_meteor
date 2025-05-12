@@ -1,10 +1,8 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-##a partire dalla versione 2_30
-##introdotto il conteggio dei falsi positivi
-##stretta la banda passante
-
-vers="Carmelo2_32"
+## dimezzato l'ampiezza del campione
+## ripulito
+vers="Carmelo2_37"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -20,7 +18,7 @@ import numpy as np
 import datetime, sys, os
 from pathlib import Path
 from time import sleep
-
+import time
 
 sleep (1)
 ledrosso.off()
@@ -44,7 +42,7 @@ sleep (1)
 ledverde.off()
 ###------------------------------------------------------------------------------caricamento finito
 button = Button(26)
-camp = 8192     #2048
+camp = 4096     #8192
 shift = 0.1e6
 rxmedio = 50
 finestra = Tx/(15e9)    #14  KHz (per Graves)
@@ -54,43 +52,37 @@ falspos=3
 cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
-trigmax=35      ##--------------50-----------------------------------------------tesa dopo la meteora prima di chiudere
-
+trigmax=35      ##--------------50-----------------------------------------------attesa dopo la meteora prima di chiudere
 sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
 diff_gain = 55
 
-
 if button.is_pressed:
     pre_gain = 20##----preampl NOOELECT
 else:
     pre_gain = 15##----preampl cinese
 
-
 if localita in ['AAB Hayfield - Derbyshire (UK)','GAV Arcugnano - VI(ITA)']: ##da togliere
     pre_gain = 20##----preampl NOOELECT
-
 sdr.bandwidth=6000#----Hz
-
-
-
 px=0
 rumore=0
 rx=frequenza=0
 ggg=0
 
-def get_data():
-    global rx,frequenza
+
+def get_data(rx, frequenza):
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
-    freq,power=signal.periodogram(frame, fs=1.0, window='boxcar')#---------------effettua l'FFT
+    freq, power = signal.periodogram(frame, fs=1.0, window='boxcar') #---------------effettua l'FFT
     freq = freq+0.016 + sdr.center_freq/1e6
     rx = frequenza=0
-    for i in range(0,len(frame)):  #---------------------------------------------porzione di spettro
-        if power[i]>rx:
-            rx=power[i]
-            frequenza=freq[i]
+    rx = power.max()
+    pow_index = power.argmax() # --- per avere l'indice del valore massimo
+    frequenza = freq[pow_index]
+    return rx, frequenza
+
 meteora=np.empty((0,4))
 sleep (2)
 ledverde.off()
@@ -98,8 +90,7 @@ ledverde.off()
 while True:
     rxprec=rx
     freqprec=frequenza
-    get_data()
-
+    rx, frequenza = get_data(rx, frequenza)
     if inizio==0:   #------------------------------------------------------------calcolo del rumore
         rxm=rxm+rx
         cont+=1
@@ -107,6 +98,7 @@ while True:
             ledverde.off()
         if cont>contmax:
             ledverde.on()
+            ledrosso.off()
             rxmedio=rxm/contmax
             rumore= (10*np.log10(rxmedio)) - sdr.gain - diff_gain - pre_gain
             cont=rxm=0
@@ -201,8 +193,6 @@ while True:
             else:
                  falspos += 1
 
-            sleep (1)
-            ledrosso.off()
         trig=inizio=rxm=cont=0
         contatore=0
         meteora=np.empty((0,4))
