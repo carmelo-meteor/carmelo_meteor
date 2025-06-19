@@ -2,7 +2,8 @@
 # di Lorenzo Barbieri e Gaetano Brando
 ## dimezzato l'ampiezza del campione
 ## ripulito
-vers="Carmelo2_37"
+## ms nel titolo
+vers="Carmelo2_38"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -172,7 +173,7 @@ while True:
                 fine = datetime.datetime.utcnow()
                 durata_camp= (fine-istante)/contatore
                 ms=int((istante.microsecond)/1000)
-                nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+\
+                nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+str(ms)+\
                          "_" + localita + '.log'
                 nomefile = os.path.join("/tmp",nomefile)
 
