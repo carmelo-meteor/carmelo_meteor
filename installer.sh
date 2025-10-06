@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer version 0.11 - 24/01/2024                     "
+echo "                    CARMELO installer version 0.12 - 06/10/2025                     "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
@@ -23,7 +23,7 @@ sleep 10s
 echo
 sudo apt-get update
 echo
-sudo apt-get full-upgrade -y
+sudo apt-get dist-upgrade -y
 
 ## PYTHON LIBRARIES INSTALLATION
 echo
@@ -35,7 +35,7 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-sudo apt-get install python3-pip libatlas-base-dev python3-gpiozero -y
+sudo apt-get install python3-pip python3-setuptools python3-gpiozero -y
 echo
 sudo apt-get install  python3-scipy python3-paho-mqtt -y
 echo
