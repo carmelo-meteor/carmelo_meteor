@@ -3,7 +3,8 @@
 ## dimezzato l'ampiezza del campione
 ## ripulito
 ## ms nel titolo
-vers="Carmelo2_38"
+## stampa versione python installata
+vers="Carmelo2_40"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -20,6 +21,7 @@ import datetime, sys, os
 from pathlib import Path
 from time import sleep
 import time
+from platform import python_version
 
 sleep (1)
 ledrosso.off()
@@ -73,15 +75,21 @@ rumore=0
 rx=frequenza=0
 ggg=0
 
+tune_freq=(Tx-shift)/1e6 + 0.016
 
 def get_data(rx, frequenza):
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
     freq, power = signal.periodogram(frame, fs=1.0, window='boxcar') #---------------effettua l'FFT
-    freq = freq+0.016 + sdr.center_freq/1e6
-    rx = frequenza=0
-    rx = power.max()
+    #print("freq : " + str(freq.dtype) +" - power : " + str(power.dtype))
+    #print("freq : " + str(freq.size) +" - power : " + str(power.size))
+    #freq = freq+0.016 + sdr.center_freq/1e6
+    #rx = frequenza=0
+    #rx = power.max()
     pow_index = power.argmax() # --- per avere l'indice del valore massimo
-    frequenza = freq[pow_index]
+    rx = power[pow_index]
+    frequenza = freq[pow_index] + tune_freq
+    #print("rx : " + str(type(rx)) +" - frequenza : " + str(type(frequenza)))
+    #print("rx : " + str(rx) +" - frequenza : " + str(frequenza))
     return rx, frequenza
 
 meteora=np.empty((0,4))
@@ -113,9 +121,9 @@ while True:
                 messaggio = os.path.join("/tmp",messaggio)
                 with open(messaggio,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
-                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" + "," + "version"+ "," + "n° Falsi positivi"
+                        "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" + "," + "version"+ "," + "n° Falsi positivi" + "Python"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
-                        "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers+ ","  +str(falspos)
+                        "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers+ "," + str(falspos) + "," + python_version()
                     riga = riga1 +"\n" + riga2
                     f.write(riga)
                     falspos=0
