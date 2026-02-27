@@ -1,9 +1,9 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-## dimezzato l'ampiezza del campione
-## ripulito
-## ms nel titolo
-vers="Carmelo2_38"
+# ripulito da Roberto Lulli
+# valori di finestre assolute e non relative
+
+vers="Carmelo2_41"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -33,7 +33,7 @@ localita = stazione[0]
 lat = float(stazione[1])
 long = float(stazione[2])
 antenna = stazione[3]
-Tx = float(stazione[4])
+Tx = float(stazione[4])   # Hz++++++++++++++++++++++++++++++++++++++++++++++++
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
@@ -44,17 +44,17 @@ ledverde.off()
 ###------------------------------------------------------------------------------caricamento finito
 button = Button(26)
 camp = 4096     #8192
-shift = 0.1e6
+shift = 0.1e6  # Hz+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 rxmedio = 50
-finestra = Tx/(15e9)    #14  KHz (per Graves)
-finestrina= Tx/(150e9)  #1.4 KHz
+finestra = 0.01    #0.0095 MHz (per Graves)
+finestrina= 0.001  #0.000950 MHz
 falspos=3
 
 cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-----------------------------------------------attesa dopo la meteora prima di chiudere
-sdr.center_freq = Tx-shift
+sdr.center_freq = Tx-shift # 142950000.0 Hz+++++++++++++++++++++++++++++++++++++
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
@@ -73,15 +73,14 @@ rumore=0
 rx=frequenza=0
 ggg=0
 
+tune_freq=(Tx-shift)/1e6 + 0.016 #  142.965 MHZ+++++++++++++++++++++++++++++++++
 
 def get_data(rx, frequenza):
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
     freq, power = signal.periodogram(frame, fs=1.0, window='boxcar') #---------------effettua l'FFT
-    freq = freq+0.016 + sdr.center_freq/1e6
-    rx = frequenza=0
-    rx = power.max()
     pow_index = power.argmax() # --- per avere l'indice del valore massimo
-    frequenza = freq[pow_index]
+    rx = power[pow_index]
+    frequenza = freq[pow_index] + tune_freq
     return rx, frequenza
 
 meteora=np.empty((0,4))
@@ -178,7 +177,7 @@ while True:
                 nomefile = os.path.join("/tmp",nomefile)
 
                 with open(nomefile,"w") as f:
-                    riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq" + \
+                    riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq (MHz)" + \
                             "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max snr"+","+"Vista(°)" +\
                              "," + "segno" + "," + "colore" + "," + "Max power" + "," + "ms"+","+"pre-gain"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
