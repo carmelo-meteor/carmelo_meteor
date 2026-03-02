@@ -1,9 +1,9 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 # ripulito da Roberto Lulli
-# valori di finestre assolute e non relative
+# modificato il criterio sulla seconda finestra
 
-vers="Carmelo2_41"
+vers="Carmelo2_42"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -46,15 +46,15 @@ button = Button(26)
 camp = 4096     #8192
 shift = 0.1e6  # Hz+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 rxmedio = 50
-finestra = 0.01    #0.0095 MHz (per Graves)
-finestrina= 0.001  #0.000950 MHz
+finestra = 0.01    #0.001 MHz
+finestrina= 0.003  #0.0001 MHz
 falspos=3
 
 cont =  rxm = trig = inizio = 0
 contatore =0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-----------------------------------------------attesa dopo la meteora prima di chiudere
-sdr.center_freq = Tx-shift # 142950000.0 Hz+++++++++++++++++++++++++++++++++++++
+sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
@@ -123,7 +123,7 @@ while True:
 
             #--------------------------------------------------------------------
 
-    if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestrina) < frequenza < (Tx/1e6 + finestra): #-------------inizio meteora
+    if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestrina) < frequenza < (Tx/1e6 + finestra): #-------se la frequenza entra nella finestra: inizio meteora
         trig=trigmax
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
@@ -156,7 +156,7 @@ while True:
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
-        if contatore>trigmax and round (secondaf,2)==Tx/1e6: #---------------------------------------------se è consistente e con le due prime freq==tx
+        if contatore>trigmax and (Tx/1e6 - finestrina) < secondaf < (Tx/1e6 + finestra): #------------se anche la seconda frequenza entra nella finestra
             listafreq = meteora[2:-33,2:3]
             (sorted_data, idx, counts) = np.unique(listafreq, return_index=True, return_counts=True)# calcola la moda
             index = idx[np.argmax(counts)]
