@@ -54,7 +54,8 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
+git clone https://github.com/librtlsdr/librtlsdr.git
+echo "git clone https://gitea.osmocom.org/sdr/rtl-sdr.git"
 cd rtl-sdr/
 mkdir build
 cd build
