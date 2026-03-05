@@ -41,7 +41,7 @@ sudo apt-get install  python3-scipy python3-paho-mqtt -y
 echo
 sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc -y
 echo
-pip3 install pyrtlsdr --break-system-packages
+pip3 install pyrtlsdr==0.3.0 --break-system-packages
 echo
 
 ## OSMOCOM RTLSDR LIBRARY INSTALLATION
@@ -54,8 +54,7 @@ echo
 echo "  ################################################################################"
 echo
 sleep 10s
-git clone https://github.com/librtlsdr/librtlsdr.git
-echo "git clone https://gitea.osmocom.org/sdr/rtl-sdr.git"
+git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
 cd rtl-sdr/
 mkdir build
 cd build
