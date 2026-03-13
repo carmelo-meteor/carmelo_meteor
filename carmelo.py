@@ -2,8 +2,9 @@
 # di Lorenzo Barbieri e Gaetano Brando
 # ripulito da Roberto Lulli
 # modificato il criterio sulla seconda finestra
+# misura giornaliera del rumore
 
-vers="Carmelo2_42"
+vers="Carmelo2_43"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -50,8 +51,8 @@ finestra = 0.01    #0.001 MHz
 finestrina= 0.003  #0.0001 MHz
 falspos=3
 
-cont =  rxm = trig = inizio = 0
-contatore =0
+cont =  rxm = trig = inizio = contrum = 0
+contatore = 0
 contmax = 500   ##---------------------------------------------------------------numero conteggi per stabilire la soglia
 trigmax=35      ##--------------50-----------------------------------------------attesa dopo la meteora prima di chiudere
 sdr.center_freq = Tx-shift
@@ -71,9 +72,10 @@ sdr.bandwidth=6000#----Hz
 px=0
 rumore=0
 rx=frequenza=0
-ggg=0
-
+ggg=hhh=0
 tune_freq=(Tx-shift)/1e6 + 0.016 #  142.965 MHZ+++++++++++++++++++++++++++++++++
+rumoreorario = 0
+rumgio = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 def get_data(rx, frequenza):
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
@@ -102,6 +104,26 @@ while True:
             rxmedio=rxm/contmax
             rumore= (10*np.log10(rxmedio)) - sdr.gain - diff_gain - pre_gain
             cont=rxm=0
+
+
+            rumoreorario=rumoreorario+rumore
+            contrum+=1
+
+
+
+
+
+            d = datetime.datetime.now()
+            if hhh != d.hour:
+                rumgio[hhh] = int(rumoreorario/contrum)
+                hhh = d.hour
+                rumoreorario=contrum=0
+
+
+
+
+
+
             #--------------------------------------------------------------------manda il messaggio "sono vivo"
             d = datetime.date.today()
             if ggg != d.day:
@@ -115,7 +137,13 @@ while True:
                         "," +"Antenna" + "," + "Vista(°)" + "," + "segno" + "," + "colore" + "," + "version"+ "," + "n° Falsi positivi"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                         "," + antenna + ","+str(vista)+ "," + segno + "," + colore + "," + vers+ ","  +str(falspos)
-                    riga = riga1 +"\n" + riga2
+                    riga3 =   str (rumgio [0]) + "," + str (rumgio [1]) + "," + str (rumgio [2]) + "," + str (rumgio [3]) + "," + str (rumgio [4]) +\
+                        "," + str (rumgio [5]) + "," + str (rumgio [6]) + "," + str (rumgio [7]) + "," + str (rumgio [8]) + "," + str (rumgio [9]) +\
+                        "," + str (rumgio [10]) + "," + str (rumgio [11]) + "," + str (rumgio [12])  + "," + str (rumgio [13]) + "," + str (rumgio [14]) +\
+                        "," + str (rumgio [15]) + "," + str (rumgio [16]) + "," + str (rumgio [17])  + "," + str (rumgio [18]) + "," + str (rumgio [19]) +\
+                        "," + str (rumgio [20]) + "," + str (rumgio [21]) + "," + str (rumgio [22])  + "," + str (rumgio [23])
+
+                    riga = riga1 +"\n" + riga2+"\n" + riga3
                     f.write(riga)
                     falspos=0
                     sleep (1)
@@ -184,8 +212,8 @@ while True:
                             "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
                             str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(sdr_max)+\
                             ","+str(vista) + "," + segno + "," + colore + "," + str(pot_max) + "," + str(ms)+ "," + str(pre_gain)
-                    riga3 ="# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
-                    riga = riga1 +"\n" + riga2+"\n" +riga3 +"\n"
+                    riga3 = "# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
+                    riga = riga1 +"\n" + riga2 +"\n" + riga3 +"\n"
                     f.write(riga)
                     for i in range(len(meteora)):
                         f.write(str(int(meteora[i][0])) + ","+str(round(meteora[i][1],2)) + ","+\
