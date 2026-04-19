@@ -22,8 +22,10 @@ echo
 sleep 10s
 echo
 sudo apt update
+sudo apt-get update
 echo
 sudo apt upgrade -y
+sudo apt-get upgrade -y
 
 ## PYTHON LIBRARIES INSTALLATION
 echo
@@ -39,7 +41,7 @@ sudo apt install python3-pip python3-setuptools python3-gpiozero -y
 echo
 sudo apt install  python3-scipy python3-paho-mqtt -y
 echo
-sudo apt install libusb-1.0-0.dev git cmake build-essential bc -y
+sudo apt-get install libusb-1.0-0.dev git cmake build-essential bc -y
 echo
 pip3 install pyrtlsdr==0.3.0 --break-system-packages
 echo
