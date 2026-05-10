@@ -1,10 +1,8 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
-# ripulito da Roberto Lulli
-# modificato il criterio sulla seconda finestra
-# misura giornaliera del rumore
+# con calibrazione del guadagno del preamplif
 
-vers="Carmelo2_43"
+vers="Carmelo2_44"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -38,8 +36,9 @@ Tx = float(stazione[4])   # Hz++++++++++++++++++++++++++++++++++++++++++++++++
 vista=float(stazione[5])
 segno=stazione[6]
 colore=stazione[7]
-soglia = 0.1  #0.05  ------------------------------------------------------------soglia sul rumore per il trigger "meteora"
 ###-----------------------------------------------------------------------------
+
+soglia = 0.1  #0.05  ------------------------------------------------------------soglia sul rumore per il trigger "meteora"
 sleep (1)
 ledverde.off()
 ###------------------------------------------------------------------------------caricamento finito
@@ -59,7 +58,9 @@ sdr.center_freq = Tx-shift
 sdr.sample_rate = 1.2e6  # 1.2e6-------------------------------------------------frequenza di campionamento in Hz!!!!!
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
-diff_gain = 55
+diff_gain = 52
+
+
 
 if button.is_pressed:
     pre_gain = 20##----preampl NOOELECT
@@ -68,6 +69,15 @@ else:
 
 if localita in ['AAB Hayfield - Derbyshire (UK)','GAV Arcugnano - VI(ITA)']: ##da togliere
     pre_gain = 20##----preampl NOOELECT
+with open('/home/pi/receiving_station_data.txt') as f:
+    righe=1+(sum(1 for _ in f))
+##    print (righe)
+if righe>=10:
+    pre_gain = float(stazione[8])
+##    print (pre_gain)
+
+
+
 sdr.bandwidth=6000#----Hz
 px=0
 rumore=0
