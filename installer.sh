@@ -228,6 +228,7 @@ done
 while :; do
     echo -n "Enter the the value of pre-gain: "
     read GAIN
+    [[ "$GAIN" =~ ^[0-9]+$ ]] || { echo "error: use positive integer"; continue; } 
     echo "$GAIN" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
     break  	
 done
