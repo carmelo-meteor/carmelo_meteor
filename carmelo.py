@@ -1,8 +1,9 @@
 # CARMELO (Cheap Amatorial Radio MEteor Logger)
 # di Lorenzo Barbieri e Gaetano Brando
 # con calibrazione del guadagno del preamplif
+# modifica calcolo millisecondi
 
-vers="Carmelo2_44"
+vers="Carmelo2_45"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -209,7 +210,8 @@ while True:
                 pot_max=round(pippo[1],2)##-----------------------------------------------nuovo----------------------------------------
                 fine = datetime.datetime.utcnow()
                 durata_camp= (fine-istante)/contatore
-                ms=int((istante.microsecond)/1000)
+                ms1 = istante.microsecond // 1000
+                ms=f"{ms1:03d}"
                 nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+str(ms)+\
                          "_" + localita + '.log'
                 nomefile = os.path.join("/tmp",nomefile)
