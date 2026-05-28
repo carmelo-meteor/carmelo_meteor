@@ -2,7 +2,7 @@
 
 
 echo
-echo "                    CARMELO installer version 0.14 - 08/04/2026                    "
+echo "                    CARMELO installer version 0.15 - 28/05/2026                    "
 echo
 echo
 echo "  The script will install the latest Carmelo version with its dependencies"
