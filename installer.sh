@@ -225,6 +225,13 @@ while :; do
     break  	
 done
 
+while :; do
+    echo -n "Enter the the value of pre-gain: "
+    read GAIN
+    echo "$GAIN" | sudo tee -a  /home/pi/receiving_station_data.txt > /dev/null
+    break  	
+done
+
 sudo systemctl daemon-reload
 sudo systemctl enable carmelo.timer
 sudo systemctl enable spedisci.timer
