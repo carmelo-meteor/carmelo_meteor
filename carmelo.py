@@ -2,8 +2,9 @@
 # di Lorenzo Barbieri e Gaetano Brando
 # con calibrazione del guadagno del preamplif
 # modifica calcolo millisecondi
+# individua gli echi di testa
 
-vers="Carmelo2_45"
+vers="Carmelo2_46"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -60,6 +61,7 @@ sdr.sample_rate = 1.2e6  # 1.2e6------------------------------------------------
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
 diff_gain = 52
+He=0 ###--------Echi di testa
 
 
 
@@ -195,13 +197,15 @@ while True:
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
+        He=0
         if contatore>trigmax and (Tx/1e6 - finestrina) < secondaf < (Tx/1e6 + finestra): #------------se anche la seconda frequenza entra nella finestra
             listafreq = meteora[2:-33,2:3]
             (sorted_data, idx, counts) = np.unique(listafreq, return_index=True, return_counts=True)# calcola la moda
             index = idx[np.argmax(counts)]
             moda=float(listafreq[index])*1e6
             delta = Tx - (moda)
-
+            if meteora[1,2]>float(listafreq[index]) and meteora[2,2]>float(listafreq[index]):
+                He=1
 
             if  abs(delta)<1000 and max(counts)>1:#---------------------------------------------------se la moda è a meno di 1 KHz da Tx allora stampa
                 ledrosso.on()
@@ -219,11 +223,11 @@ while True:
                 with open(nomefile,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq (MHz)" + \
                             "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max snr"+","+"Vista(°)" +\
-                             "," + "segno" + "," + "colore" + "," + "Max power" + "," + "ms"+","+"pre-gain"
+                             "," + "segno" + "," + "colore" + "," + "Max power" + "," + "ms"+","+"pre-gain"+","+"He"
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                             "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
                             str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(sdr_max)+\
-                            ","+str(vista) + "," + segno + "," + colore + "," + str(pot_max) + "," + str(ms)+ "," + str(pre_gain)
+                            ","+str(vista) + "," + segno + "," + colore + "," + str(pot_max) + "," + str(ms)+ "," + str(pre_gain)+ "," + str(He)
                     riga3 = "# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
                     riga = riga1 +"\n" + riga2 +"\n" + riga3 +"\n"
                     f.write(riga)
