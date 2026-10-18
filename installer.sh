@@ -275,10 +275,10 @@ read -r TS_HOSTNAME
 
 # Imposta hostname di sistema
 hostnamectl set-hostname "$TS_HOSTNAME"
-sed -i "s/127.0.1.1.*/127.0.1.1\t$TS_HOSTNAME/" /etc/hosts
+sudo sed -i "s/127.0.1.1.*/127.0.1.1\t$TS_HOSTNAME/" /etc/hosts
 
 # Assicurati che SSH sia attivo
-apt-get install -y openssh-server -qq
+sudo apt-get install -y openssh-server -qq
 systemctl enable --now ssh
 
 # Installa Tailscale
@@ -286,12 +286,12 @@ curl -fsSL https://tailscale.com/install.sh | sh
 systemctl enable --now tailscaled
 
 # Connetti a Tailscale con SSH abilitato
-tailscale up --authkey="$TAILSCALE_AUTHKEY" --hostname="$TS_HOSTNAME" --ssh
+sudo tailscale up --authkey="$TAILSCALE_AUTHKEY" --hostname="$TS_HOSTNAME" --ssh
 
 # Mostra IP Tailscale assegnato
 echo
 echo "  Tailscale connected. SSH access:"
-echo "  ssh pi@$TS_HOSTNAME   or   ssh pi@$(tailscale ip -4 2>/dev/null || echo '<tailscale-ip>')"
+echo "  ssh pi@$TS_HOSTNAME   or   ssh pi@$(sudo tailscale ip -4 2>/dev/null || echo '<tailscale-ip>')"
 echo
 
 
