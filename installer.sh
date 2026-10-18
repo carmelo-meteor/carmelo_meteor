@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# ─── Esecuzione come root ──────────────────────────────────────
+# Se lo script non e' gia' eseguito come root, si rilancia da solo
+# con sudo chiedendo la password una sola volta all'inizio. Da qui
+# in avanti tutto (incluse le richieste polkit di hostnamectl e
+# systemctl) gira gia' come root, senza ulteriori richieste.
+if [ "$(id -u)" -ne 0 ]; then
+    exec sudo bash "$0" "$@"
+fi
+# ──────────────────────────────────────────────────────────────
+
 # ─── Configurazione Tailscale ─────────────────────────────────
 # Inserire qui la propria auth key di Tailscale (Settings → Keys)
 # Usare una "reusable auth key" per non doverla cambiare ogni volta
