@@ -64,15 +64,9 @@ sdr.gain = 43.4
 diff_gain = 52
 
 
-
-
-
 #nuovo---------------------------------------------------------------------------------
 He=0 ###--------Echi di testa
 #nuovo---------------------------------------------------------------------------------
-
-
-
 
 
 
@@ -123,9 +117,9 @@ while True:
         rxm=rxm+potenza_Tx
         if cont==20:
             ledverde.off()
+            ledrosso.off()
         if cont>contmax:
             ledverde.on()
-            ledrosso.off()
             rxmedio=rxm/contmax
             rumore= (10*np.log10(rxmedio)) - sdr.gain - diff_gain - pre_gain
             cont=rxm=0
