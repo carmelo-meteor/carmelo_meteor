@@ -3,8 +3,9 @@
 # con calibrazione del guadagno del preamplif
 # modifica calcolo millisecondi
 # individua gli echi di testa
+# nuova valutazione del rumore
 
-vers="Carmelo2_46"
+vers="Carmelo2_47"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -61,7 +62,17 @@ sdr.sample_rate = 1.2e6  # 1.2e6------------------------------------------------
 sdr.freq_correction = 1   #  1 --------------------------------------------------PPM
 sdr.gain = 43.4
 diff_gain = 52
+
+
+
+
+
+#nuovo---------------------------------------------------------------------------------
 He=0 ###--------Echi di testa
+#nuovo---------------------------------------------------------------------------------
+
+
+
 
 
 
@@ -74,29 +85,30 @@ if localita in ['AAB Hayfield - Derbyshire (UK)','GAV Arcugnano - VI(ITA)']: ##d
     pre_gain = 20##----preampl NOOELECT
 with open('/home/pi/receiving_station_data.txt') as f:
     righe=1+(sum(1 for _ in f))
-##    print (righe)
 if righe>=10:
     pre_gain = float(stazione[8])
-##    print (pre_gain)
-
-
 
 sdr.bandwidth=6000#----Hz
 px=0
 rumore=0
-rx=frequenza=0
+rx=frequenza=potenza_Tx=0
 ggg=hhh=0
 tune_freq=(Tx-shift)/1e6 + 0.016 #  142.965 MHZ+++++++++++++++++++++++++++++++++
 rumoreorario = 0
 rumgio = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-def get_data(rx, frequenza):
+def get_data():
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
     freq, power = signal.periodogram(frame, fs=1.0, window='boxcar') #---------------effettua l'FFT
     pow_index = power.argmax() # --- per avere l'indice del valore massimo
     rx = power[pow_index]
     frequenza = freq[pow_index] + tune_freq
-    return rx, frequenza
+    freq_assolute = freq / 1e6 + tune_freq
+        # 2. Potenza alla frequenza Tx
+    index_Tx = np.abs(freq_assolute - Tx / 1e6).argmin()
+    potenza_Tx = power[index_Tx]
+
+    return rx, frequenza, potenza_Tx
 
 meteora=np.empty((0,4))
 sleep (2)
@@ -105,37 +117,26 @@ ledverde.off()
 while True:
     rxprec=rx
     freqprec=frequenza
-    rx, frequenza = get_data(rx, frequenza)
+    rx, frequenza,potenza_Tx  = get_data()
+    cont+=1
     if inizio==0:   #------------------------------------------------------------calcolo del rumore
-        rxm=rxm+rx
-        cont+=1
+        rxm=rxm+potenza_Tx
         if cont==20:
             ledverde.off()
+            ledrosso.off()
         if cont>contmax:
             ledverde.on()
-            ledrosso.off()
-            rxmedio=rxm/contmax
+                        rxmedio=rxm/contmax
             rumore= (10*np.log10(rxmedio)) - sdr.gain - diff_gain - pre_gain
             cont=rxm=0
-
-
             rumoreorario=rumoreorario+rumore
             contrum+=1
-
-
-
-
 
             d = datetime.datetime.now()
             if hhh != d.hour:
                 rumgio[hhh] = int(rumoreorario/contrum)
                 hhh = d.hour
                 rumoreorario=contrum=0
-
-
-
-
-
 
             #--------------------------------------------------------------------manda il messaggio "sono vivo"
             d = datetime.date.today()
@@ -197,15 +198,36 @@ while True:
 
     if trig==1:  #---------------------------------------------------------------fine rilevazione
         ledgiallo.off()
+
+
+
+
+#nuovo----------------------------------------------------------------------------------------------
         He=0
+#nuovo----------------------------------------------------------------------------------------------
+
+
+
+
+
         if contatore>trigmax and (Tx/1e6 - finestrina) < secondaf < (Tx/1e6 + finestra): #------------se anche la seconda frequenza entra nella finestra
             listafreq = meteora[2:-33,2:3]
             (sorted_data, idx, counts) = np.unique(listafreq, return_index=True, return_counts=True)# calcola la moda
             index = idx[np.argmax(counts)]
             moda=float(listafreq[index])*1e6
             delta = Tx - (moda)
+
+
+
+
+#nuovo----------------------------------------------------------------------------------------
             if meteora[1,2]>float(listafreq[index]) and meteora[2,2]>float(listafreq[index]):
                 He=1
+#nuovo-------------------------------------------------------------------------------------------
+
+
+
+
 
             if  abs(delta)<1000 and max(counts)>1:#---------------------------------------------------se la moda è a meno di 1 KHz da Tx allora stampa
                 ledrosso.on()
@@ -219,15 +241,16 @@ while True:
                 nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+str(ms)+\
                          "_" + localita + '.log'
                 nomefile = os.path.join("/tmp",nomefile)
+##                print(meteora)
 
                 with open(nomefile,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq (MHz)" + \
                             "," + "Noise(dB)"+ ","+"Antenna"+ ","+"Gain(dB)"+"," +"Sampling duration(ms)"+","+"Meteor duration (ms)"+","+"Max snr"+","+"Vista(°)" +\
-                             "," + "segno" + "," + "colore" + "," + "Max power" + "," + "ms"+","+"pre-gain"+","+"He"
+                             "," + "segno" + "," + "colore" + "," + "Max power" + "," + "ms"+","+"pre-gain"+","+"He"#nuovo------------------------------------------------------------
                     riga2 = localita +","+str(lat) + ","+str(long) + "," + str(Tx/10e5)+\
                             "," + str(round(rumore,2))+"," +antenna + ","+str(sdr.gain)+ ","+str(durata_camp.microseconds/1000)+","+\
                             str(round((contatore-trigmax)*(durata_camp.microseconds/1000)))+","+str(sdr_max)+\
-                            ","+str(vista) + "," + segno + "," + colore + "," + str(pot_max) + "," + str(ms)+ "," + str(pre_gain)+ "," + str(He)
+                            ","+str(vista) + "," + segno + "," + colore + "," + str(pot_max) + "," + str(ms)+ "," + str(pre_gain)+ "," + str(He)#nuovo---------------------------------
                     riga3 = "# " +"Samp" + ","+"Rx power" + ","+"Freq." + "," + "SNR"
                     riga = riga1 +"\n" + riga2 +"\n" + riga3 +"\n"
                     f.write(riga)
