@@ -29,6 +29,8 @@ sdr = RtlSdr()
 sleep (1)
 ledgiallo.off()
 
+
+
 ###------------------------------------------------------------------------------legge e carica i parametri di stazione
 stazione = [line.rstrip('\n') for line in open('/home/pi/receiving_station_data.txt')]
 localita = stazione[0]
