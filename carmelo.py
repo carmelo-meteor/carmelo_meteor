@@ -3,9 +3,9 @@
 # con calibrazione del guadagno del preamplif
 # modifica calcolo millisecondi
 # individua gli echi di testa
-# nuova valutazione del rumore
+# trigger senza soglia
 
-vers="Carmelo2_47"
+vers="Carmelo2_48"
 
 from gpiozero import LED,Button
 ###------------------------------------------------------------------------------accende i led per mostrare che sta caricando
@@ -28,8 +28,6 @@ ledrosso.off()
 sdr = RtlSdr()
 sleep (1)
 ledgiallo.off()
-
-
 
 ###------------------------------------------------------------------------------legge e carica i parametri di stazione
 stazione = [line.rstrip('\n') for line in open('/home/pi/receiving_station_data.txt')]
@@ -66,9 +64,15 @@ sdr.gain = 43.4
 diff_gain = 52
 
 
+
+
+
 #nuovo---------------------------------------------------------------------------------
 He=0 ###--------Echi di testa
 #nuovo---------------------------------------------------------------------------------
+
+
+
 
 
 
@@ -87,24 +91,19 @@ if righe>=10:
 sdr.bandwidth=6000#----Hz
 px=0
 rumore=0
-rx=frequenza=potenza_Tx=0
+rx=frequenza=0
 ggg=hhh=0
 tune_freq=(Tx-shift)/1e6 + 0.016 #  142.965 MHZ+++++++++++++++++++++++++++++++++
 rumoreorario = 0
 rumgio = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-def get_data():
+def get_data(rx, frequenza):
     frame = sdr.read_samples(camp)  #--------------------------------------------acquisisce lo spettro
     freq, power = signal.periodogram(frame, fs=1.0, window='boxcar') #---------------effettua l'FFT
     pow_index = power.argmax() # --- per avere l'indice del valore massimo
     rx = power[pow_index]
     frequenza = freq[pow_index] + tune_freq
-    freq_assolute = freq / 1e6 + tune_freq
-        # 2. Potenza alla frequenza Tx
-    index_Tx = np.abs(freq_assolute - Tx / 1e6).argmin()
-    potenza_Tx = power[index_Tx]
-
-    return rx, frequenza, potenza_Tx
+    return rx, frequenza
 
 meteora=np.empty((0,4))
 sleep (2)
@@ -113,15 +112,15 @@ ledverde.off()
 while True:
     rxprec=rx
     freqprec=frequenza
-    rx, frequenza,potenza_Tx  = get_data()
-    cont+=1
+    rx, frequenza = get_data(rx, frequenza)
     if inizio==0:   #------------------------------------------------------------calcolo del rumore
-        rxm=rxm+potenza_Tx
+        rxm=rxm+rx
+        cont+=1
         if cont==20:
             ledverde.off()
-            ledrosso.off()
         if cont>contmax:
             ledverde.on()
+            ledrosso.off()
             rxmedio=rxm/contmax
             rumore= (10*np.log10(rxmedio)) - sdr.gain - diff_gain - pre_gain
             cont=rxm=0
@@ -161,7 +160,7 @@ while True:
 
             #--------------------------------------------------------------------
 
-    if rx > rxmedio + (rxmedio*soglia) and (Tx/1e6 - finestrina) < frequenza < (Tx/1e6 + finestra): #-------se la frequenza entra nella finestra: inizio meteora
+    if (Tx/1e6 - finestrina) < frequenza < (Tx/1e6 + finestra): #-------se la frequenza entra nella finestra: inizio meteora
         trig=trigmax
         if inizio==0:    #-------------------------------------------------------primo istante
             istante = datetime.datetime.utcnow()
@@ -237,7 +236,6 @@ while True:
                 nomefile=str('R'+datetime.datetime.strftime(istante,'%Y%m%d_%H%M%S'))+str(ms)+\
                          "_" + localita + '.log'
                 nomefile = os.path.join("/tmp",nomefile)
-##                print(meteora)
 
                 with open(nomefile,"w") as f:
                     riga1 = "# " +"Locality" + ","+"Lat." + ","+"Long." + "," + "Tx freq (MHz)" + \
